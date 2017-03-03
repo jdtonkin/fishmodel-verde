@@ -10,7 +10,7 @@ rm(list = ls()) # clearing the workspace
 
 # bringing in flow data
 # Verde flow data at Paulden 1984-2013, 30 years continuous
-flowdata <- read.csv("flowdata_Verde.csv") 
+flowdata <- read.csv("data/flowdata_Verde.csv") 
 str(flowdata)
 head(flowdata)
 # floodmag - magnitude of flood in cfs
@@ -23,12 +23,27 @@ count <- length(flowdata$floodmag) # inner loop - number of years to simulate; s
 # replicates <- 100 # number of replicate projections to run (mid loop)
 
 # Modifiers
-modifiers <- read.csv('modifiers.csv')
+modifiers <- read.csv('data/modifiers.csv')
 
 # adding 'Modifier' value from csv to 'Code' in csv
 for(j in 1:length(modifiers[,1])) {
     nam <- paste(modifiers[j,4])
     assign(nam, modifiers[j,6]) # SHOULD BE 5 FOR REAL VALUES!!!!
+}
+
+# Vital rates
+# Baseline maturation probabiliity, aCACL3 (adult senescence rate)
+# Background mortality
+# Initial volume in grams in 100-m reach
+# Fecundity based on year type
+# these are raw numbers taken from survey data: max, mean and min fecundities
+# Stage specific densities (ind./g)
+
+vitalrates <- read.csv('data/vital-rates.csv')
+# assigning vital rate values from column 3 to 'code' in column 2
+for(k in 1:length(vitalrates[,1])) {
+    nam <- paste(vitalrates[k,2])
+    assign(nam, vitalrates[k,3]) 
 }
 
 # Key ------------------------------------------------------------
@@ -38,8 +53,7 @@ for(j in 1:length(modifiers[,1])) {
 
 # Total volume of water in m3: 317
 # Total fish biomass in g (with main spp): 3809
-# 
-#
+
 
 K = 3809 # avg. for 100-m reach across 6 replicate reaches... in g/m3 this is 15 g/m3
 
@@ -157,105 +171,6 @@ FGIROoutput <- numeric(length = count)
 FLECYoutput <- numeric(length = count)
 
 
-
-# VITAL RATES ------------------------------------------------
-
-# Desert Sucker ----------------------------------------
-
-# "Self thinning" rates, or equivalency rules, for stage transitions 
-#bCACL1 <- denCACL2/denCACL1
-#bCACL2 <- denCACL3/denCACL2
-
-# Baseline maturation probabiliity, aCACL3 (adult senescence rate)
-aCACL1 <- 1
-aCACL2 <- 1 
-aCACL3 <- .167
-
-# Background mortality
-S1MortCACL <- .8
-S2MortCACL <- .5
-S3MortCACL <- .1
-
-# Initial volume in grams in 100-m reach
-biomCACL1 <- 333
-biomCACL2 <- 333
-biomCACL3 <- 333
-
-# Fecundity based on yeartype
-# these are raw numbers taken from survey data: max, mean and min fecundities
-maxfec.CACL <- 2772 
-meanfec.CACL <- 1140
-minfec.CACL <- 450
-
-# Stage specific densities (ind./g)
-denCACL3 <- .008 # real number based on avg. biomass of individuals on site
-denCACL2 <- .077 # this will be calculated based on size of age 1
-denCACL1 <- meanfec.CACL / ((380) * 0.05) # eggs; based on 5% of body weight going into ovaries (literature derived); 380 is avg. female weight (from bruder 2006)
-
-# Chub ----------------------------------------
-
-# "Self thinning" rates, or equivalency rules, for stage transitions 
-#bGIRO1 <- denGIRO2/denGIRO1
-#bGIRO2 <- denGIRO3/denGIRO2
-
-# Baseline maturation probabiliity, aGIRO3 (adult senescence rate)
-aGIRO1 <- 1
-aGIRO2 <- 1 
-aGIRO3 <- .125
-
-# Background mortality
-S1MortGIRO <- .8
-S2MortGIRO <- .5
-S3MortGIRO <- .1
-
-# Initial volume in grams in 100-m reach
-biomGIRO1 <- 333
-biomGIRO2 <- 333
-biomGIRO3 <- 333
-
-# Fecundity based on yeartype
-maxfec.GIRO <- 26903 
-meanfec.GIRO <- 18699
-minfec.GIRO <- 13816
-
-# Stage specific densities (ind./g)
-denGIRO3 <- .0069
-denGIRO2 <- .05
-denGIRO1 <- 1000  
-
-
-# Green sunfish ----------------------------------------
-
-# "Self thinning" rates, or equivalency rules, for stage transitions 
-#bLECY1 <- denLECY2/denLECY1
-#bLECY2 <- denLECY3/denLECY2
-
-# Baseline maturation probabiliity, aLECY3 (adult senescence rate)
-aLECY1 <- 1
-aLECY2 <- 1 
-aLECY3 <- .33
-
-# Background mortality
-S1MortLECY <- .8
-S2MortLECY <- .5
-S3MortLECY <- .1
-
-# Initial weight in grams in 100-m reach 
-biomLECY1 <- 333
-biomLECY2 <- 333
-biomLECY3 <- 333
-
-# Fecundity based on yeartype
-# THESE ARE MADE UP
-maxfec.LECY <- 20000
-meanfec.LECY <- 10000
-minfec.LECY <- 5000
-
-# Stage specific densities (ind./g)
-denLECY3 <- .038
-denLECY2 <- .5
-denLECY1 <- 1000 
-
 # N gives the total number of individuals for each age class.
 # Initially here, this is found by multiplying the number of g occupied by a given class
 # by the the density per g 
@@ -302,9 +217,6 @@ for(i in 1:count) {
 # Different from plant model as we have built in multiplier of severity of droughts or non-events on transition probabilities 
 
 # Desert Sucker
-#GCACL1 <- aCACL1 * bCACL1 * (1 - flood[y] * SpCACL1) * (1 - drought[y] * (SuCACL1 * droughtmult.N)) * (1 - nonevent[y] * (SuCACL1 * noneventmult.N))
-#GCACL2 <- aCACL2 * bCACL2 * (1 - flood[y] * SpCACL2) * (1 - drought[y] * (SuCACL2 * droughtmult.N)) * (1 - nonevent[y] * (SuCACL2 * noneventmult.N))
-#PCACL3 <- (1 - aCACL3) * (1 - flood[y] * SpCACL3) * (1 - drought[y] * (SuCACL3 * droughtmult.N)) * (1 - nonevent[y] * (SuCACL3 * noneventmult.N))
 
     GCACL1 <- aCACL1 *
         ((1 - (highflood[y] * S1MortCACL)) * CACL_Sp_HF * CACL_Su_HF) *
@@ -327,9 +239,6 @@ for(i in 1:count) {
  
 
 # Chub
-#GGIRO1 <- aGIRO1 * bGIRO1 * (1 - flood[y] * SpGIRO1) * (1 - drought[y] * (SuGIRO1 * droughtmult.N)) * (1 - nonevent[y] * (SuGIRO1 * noneventmult.N))
-#GGIRO2 <- aGIRO2 * bGIRO2 * (1 - flood[y] * SpGIRO2) * (1 - drought[y] * (SuGIRO2 * droughtmult.N)) * (1 - nonevent[y] * (SuGIRO2 * noneventmult.N))
-#PGIRO3 <- (1 - aGIRO3) * (1 - flood[y] * SpGIRO3) * (1 - drought[y] * (SuGIRO3 * droughtmult.N)) * (1 - nonevent[y] * (SuGIRO3 * noneventmult.N))
 
      GGIRO1 <- aGIRO1 *
         ((1 - (highflood[y] * S1MortGIRO)) * GIRO_Sp_HF * GIRO_Su_HF) *
@@ -353,9 +262,6 @@ for(i in 1:count) {
 
 
 # Green sunfish - note the "NN"
-#GLECY1 <- aLECY1 * bLECY1 * (1 - flood[y] * SpLECY1) * (1 - drought[y] * (SuLECY1 * droughtmult.NN)) * (1 - nonevent[y] * SuLECY1)
-#GLECY2 <- aLECY2 * bLECY2 * (1 - flood[y] * SpLECY2) * (1 - drought[y] * (SuLECY2 * droughtmult.NN)) * (1 - nonevent[y] * SuLECY2)
-#PLECY3 <- (1 - aLECY3) * (1 - flood[y] * SpLECY3) * (1 - drought[y] * (SuLECY3 * droughtmult.NN)) * (1 - nonevent[y] * SuLECY3)
 
  GLECY1 <- aLECY1 *
         ((1 - (highflood[y] * S1MortLECY)) * LECY_Sp_HF * LECY_Su_HF) *
@@ -377,30 +283,16 @@ for(i in 1:count) {
     
  
 # Total grams occupied after year -----------------------------------------------
-#totbiom.CACL <- 
-#    biomCACL[1] * GCACL1/bCACL1 + 
-#    biomCACL[2] * GCACL2/(bCACL2 * bCACL1) + 
-#    biomCACL[3] * PCACL3/(bCACL2 * bCACL1) 
 
 totbiom.CACL <- 
 #    biomCACL[1] + 
     biomCACL[2] + 
     biomCACL[3] 
 
-#totbiom.GIRO <- 
-#    biomGIRO[1] * GGIRO1/bGIRO1 + 
-#    biomGIRO[2] * GGIRO2/(bGIRO2 * bGIRO1) + 
-#    biomGIRO[3] * PGIRO3/(bGIRO2 * bGIRO1) 
-
 totbiom.GIRO <- 
 #    biomGIRO[1] + 
     biomGIRO[2] + 
     biomGIRO[3] 
-
-#totbiom.LECY <- 
-#    biomLECY[1] * GLECY1/bLECY1 + 
-#    biomLECY[2] * GLECY2/(bLECY2 * bLECY1) + 
-#    biomLECY[3] * PLECY3/(bLECY2 * bLECY1) 
 
 totbiom.LECY <- 
 #    biomLECY[1] + 
@@ -413,7 +305,7 @@ totbiom.LECY <-
 
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
     FCACL3 <- checkpos((adult_func(biomCACL[3] * denCACL3)) * # checks to see if at least 2 adults are present.
-                       #(1/nonind(biomCACL[3])) *
+                       (1/nonind(biomCACL[3])) *
     ifelse(highflood[y] == 1 & spawnwindow.CACL[y] == 1,
     (floor((biomCACL[3] * denCACL3) / 2) * maxfec.CACL) / denCACL1, # converting maxfec into g 
     ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1,
@@ -428,58 +320,38 @@ totbiom.LECY <-
 
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
     FGIRO3 <- checkpos((adult_func(biomGIRO[3] * denGIRO3)) *  # checks to see if at least 2 adults are present. 
-                       #(1/nonind(biomGIRO[3])) *
-                   ifelse(highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                          (floor((biomGIRO[3] * denGIRO3) / 2) * maxfec.GIRO) / denGIRO1, # converting maxfec into g 
-                   ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                           (floor((biomGIRO[3] * denGIRO3) / 2) * meanfec.GIRO) / denGIRO1,
-                           (floor((biomGIRO[3] * denGIRO3) / 2) * minfec.GIRO) / denGIRO1)) * # fecundity function of yeartype
-                   ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
+                                        (1/nonind(biomGIRO[3])) *
+                       ifelse(highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
+                       (floor((biomGIRO[3] * denGIRO3) / 2) * maxfec.GIRO) / denGIRO1, # converting maxfec into g 
+                       ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
+                       (floor((biomGIRO[3] * denGIRO3) / 2) * meanfec.GIRO) / denGIRO1,
+                       (floor((biomGIRO[3] * denGIRO3) / 2) * minfec.GIRO) / denGIRO1)) * # fecundity function of yeartype
+                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
 
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
     FLECY3 <- checkpos((adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
-                       #(1/nonind(biomLECY[3])) *
-                   ifelse(highflood[y] == 1 & wipeoutwindow.LECY[y] == 1,
-                          0, # converting maxfec into g
-                   ifelse(highflood[y] == 1 & wipeoutwindow.LECY[y] == 0,
-                           (floor((biomLECY[3] * denLECY3) / 2) * minfec.LECY) / denLECY1,
-                   ifelse(medflood[y] == 1 & wipeoutwindow.LECY[y] == 1,
-                          (floor((biomLECY[3] * denLECY3) / 2) * meanfec.LECY) / denLECY1,
-                          (floor((biomLECY[3] * denLECY3) / 2) * meanfec.LECY) / denLECY1))) * # fecundity function of yeartype
-                   ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
-
-
-
-
+                                        (1/nonind(biomLECY[3])) *
+                       ifelse(highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, # converting maxfec into g
+                       ifelse(highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor((biomLECY[3] * denLECY3) / 2) * minfec.LECY) / denLECY1,
+                       ifelse(medflood[y] == 1 & wipeoutwindow.LECY[y] == 1, (floor((biomLECY[3] * denLECY3) / 2) * meanfec.LECY) / denLECY1, (floor((biomLECY[3] * denLECY3) / 2) * meanfec.LECY) / denLECY1))) * # fecundity function of yeartype
+                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
 
 
 # K --------------------------------------------------------------------------------------
 # CACL
 # gives total CACL biomass as a percentage of K; 
-#KCACL <- 100 * (biomCACL[1] + 
-#             biomCACL[2]/(bCACL1) + 
-#             biomCACL[3]/(bCACL2 * bCACL1))/K
-
 KCACL <- 100 * (biomCACL[1] + 
              biomCACL[2] + 
              biomCACL[3])/K
 
 # GIRO
 # gives total GIRO biomass as a percentage of K; 
-#KGIRO <- 100 * (biomGIRO[1] + 
-#             biomGIRO[2]/(bGIRO1) + 
-#             biomGIRO[3]/(bGIRO2 * bGIRO1))/K
-
 KGIRO <- 100 * (biomGIRO[1] + 
              biomGIRO[2] + 
              biomGIRO[3])/K
 
 # LECY
 # gives total LECY biomass as a percentage of K; 
-#KLECY <- 100 * (biomLECY[1] + 
-#             biomLECY[2]/(bLECY1) + 
-#             biomLECY[3]/(bLECY2 * bLECY1))/K 
-
 KLECY <- 100 * (biomLECY[1] + 
              biomLECY[2] + 
              biomLECY[3])/K
@@ -487,26 +359,47 @@ KLECY <- 100 * (biomLECY[1] +
 # TRANSITION MATRICES --------------------------------------------------------------------
 
 # TRANSITION MATRIX FOR CACL -------------------------------------------------------
-ACACL1 <- c(0, 0, 0)
+ACACL1 <- c(0, 0, FCACL3)
 ACACL2 <- c(GCACL1, 0, 0)
 ACACL3 <- c(0, GCACL2, PCACL3)
 # Matrix
 ACACL <- rbind(ACACL1, ACACL2, ACACL3)
 
 # TRANSITION MATRIX FOR GIRO -------------------------------------------------------
-AGIRO1 <- c(0, 0, 0)
+AGIRO1 <- c(0, 0, FGIRO3)
 AGIRO2 <- c(GGIRO1, 0, 0)
 AGIRO3 <- c(0, GGIRO2, PGIRO3)
 # Matrix
 AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
 
 # TRANSITION MATRIX FOR LECY -------------------------------------------------------
-ALECY1 <- c(0, 0, 0)
+ALECY1 <- c(0, 0, FLECY3)
 ALECY2 <- c(GLECY1, 0, 0)
 ALECY3 <- c(0, GLECY2, PLECY3)
 # Matrix
 ALECY <- rbind(ALECY1, ALECY2, ALECY3)
 
+# Manually adding fecundity
+
+## ACACL1 <- c(0, 0, 0)
+## ACACL2 <- c(GCACL1, 0, 0)
+## ACACL3 <- c(0, GCACL2, PCACL3)
+## # Matrix
+## ACACL <- rbind(ACACL1, ACACL2, ACACL3)
+
+## # TRANSITION MATRIX FOR GIRO -------------------------------------------------------
+## AGIRO1 <- c(0, 0, 0)
+## AGIRO2 <- c(GGIRO1, 0, 0)
+## AGIRO3 <- c(0, GGIRO2, PGIRO3)
+## # Matrix
+## AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
+
+## # TRANSITION MATRIX FOR LECY -------------------------------------------------------
+## ALECY1 <- c(0, 0, 0)
+## ALECY2 <- c(GLECY1, 0, 0)
+## ALECY3 <- c(0, GLECY2, PLECY3)
+## # Matrix
+## ALECY <- rbind(ALECY1, ALECY2, ALECY3)
 
 
 # COMPILING OUTPUTS ----------------------------------------------------------------------
@@ -532,7 +425,7 @@ medfloodoutput[i] <- medflood[y]
 noneventoutput[i] <- nonevent[y]
 droughtoutput[i] <- drought[y]
 
-
+# if we want to add total fecundity in afterwards
 CACLplaceholder <- FCACL3
 GIROplaceholder <- FGIRO3
 LECYplaceholder <- FLECY3
@@ -540,7 +433,7 @@ LECYplaceholder <- FLECY3
 # MATRIX MULTIPLICATION ------------------------------------------------------------------
 # CACL
 biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total biomass for each age class
-    biomCACL[1] <- CACLplaceholder
+#    biomCACL[1] <- CACLplaceholder
     
 #nCACLpost <- c(biomCACL[1] * denCACL1, biomCACL[2] * denCACL2, biomCACL[3] * denCACL3)
 #nCACLpost <- ifelse(nCACLpost < 1, 0, 1)
@@ -548,7 +441,7 @@ biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total bi
 
 # GIRO
 biomGIRO <- AGIRO %*% biomGIRO # AGIRO is transition matrix, biomGIRO = total biomass for each age class
-    biomGIRO[1] <- GIROplaceholder
+#    biomGIRO[1] <- GIROplaceholder
     
 #nGIROpost <- c(biomGIRO[1] * denGIRO1, biomGIRO[2] * denGIRO2, biomGIRO[3] * denGIRO3)
 #nGIROpost <- ifelse(nGIROpost < 1, 0, 1)
@@ -556,7 +449,7 @@ biomGIRO <- AGIRO %*% biomGIRO # AGIRO is transition matrix, biomGIRO = total bi
 
 # LECY
 biomLECY <- ALECY %*% biomLECY # ALECY is transition matrix, biomLECY = total biomass for each age class
-    biomLECY[1] <- LECYplaceholder
+#    biomLECY[1] <- LECYplaceholder
     
 #nLECYpost <- c(biomLECY[1] * denLECY1, biomLECY[2] * denLECY2, biomLECY[3] * denLECY3)
 #nLECYpost <- ifelse(nLECYpost < 1, 0, 1)
