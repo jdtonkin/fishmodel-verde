@@ -6,6 +6,7 @@ library(dplyr)
 ?duplicated
 ?rle
 ?merge
+?write.csv
 
 # Make flowdata file with spring and summer floods and minimum baseflow duration
 
@@ -57,5 +58,7 @@ flowdata_Verde2 <- flowdata_Verde3[,-c(6, 12, 13, 15)]
 colnames(flowdata_Verde2) <- c("year", "sp_max_cfs", "agency", "site_no", "sp_datetime", "sp_calendar_day", "sp_water_day",
                                "sp_month", "basedur", "su_max_cfs", "su_datetime", "su_calendar_day", "su_water_day", "su_month")
 flowdata_Verde2
-flowdata_Verde <- flowdata_Verde2[,-c(6, 8, 12, 14)]
-                                  
+flowdata_Verde <- flowdata_Verde2[,-c(3, 4, 5, 6, 8, 11, 12, 14)]
+colnames(flowdata_Verde) <- c("Year", "SpFloodMag", "SpFloodDate", "BaseDur", "SuFloodMag", "SuFloodDate")
+flowdata_Verde
+write.csv(flowdata_Verde, file = "data/flowdata_Verde.csv")                                  

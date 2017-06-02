@@ -9,7 +9,7 @@ library(dplyr)
 rm(list = ls()) # clearing the workspace 
 
 # bringing in flow data
-# Verde flow data at Paulden 1984-2013, 30 years continuous
+# Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
 flowdata <- read.csv("data/flowdata_Verde.csv") 
 str(flowdata)
 head(flowdata)
@@ -92,28 +92,30 @@ spawnwindow.GIRO_func <- function(x) {
 }
 
 wipeoutwindow.LECY_func <- function(x) {
-    ifelse(flowdata$flooddate > 198, 1, 0) # late floods stop spawning
+    ifelse(flowdata$flooddate > 214, 1, 0) # late floods stop spawning
 }
 
 
 spawnwindow.CACL <-
-    spawnwindow.CACL_func(flowdata$flooddate)
+    spawnwindow.CACL_func(flowdata$flooddate) # Spring flood date
 
 spawnwindow.GIRO <-
-    spawnwindow.GIRO_func(flowdata$flooddate)
+    spawnwindow.GIRO_func(flowdata$flooddate) # Spring flood date
 
 wipeoutwindow.LECY <-
-    wipeoutwindow.LECY_func(flowdata$flooddate)
+    wipeoutwindow.LECY_func(flowdata$flooddate) # Summer flood date
 
 
 # FLOOD THRESHOLD FUNCTIONS --------------------------------------------------------------
 # flowdata$floodmag - vector containing peak flood magnitude 
 
 # Magnitude of peak flow over which is considered a large flood event
-highfloodcutoff = 700 # This is in CFS, as are the Maybell data points 
-medfloodcutoff = 100 # non-event is 
-# Same for drought (threshold below rather than above)
-mindroughtlength = 30 # length of drought - a vector specified in csv. 
+highfloodcutoff = 700 # Floods (cfs) at 4-yr recurrence interval or greater (30 times median flow).
+medfloodcutoff = 220 # Floods (cfs) at 2.5-yr recurrence interval (10 times median flow)
+# Non-event is same for drought (threshold below rather than above)
+mindroughtlength = 40 # threshold length of low-flow in days (greater than 75th percentile of low flow duration) -- 
+# determined as number of consecutive days with discharge (cfs) less than 22 cfs (25th percentile of flows) May 1 - Sep 30
+# This threshold is compared to baseflow duration in any given year - a vector specified in csv (baseflow_dur).
 
 # Convert peak discharge values into a vector of floods/no floods, 
 highflood_func <- function(x) {
@@ -364,13 +366,14 @@ ACACL2 <- c(GCACL1, 0, 0)
 ACACL3 <- c(0, GCACL2, PCACL3)
 # Matrix
 ACACL <- rbind(ACACL1, ACACL2, ACACL3)
-
+lambda(ACACL) # Checking population growth rate
 # TRANSITION MATRIX FOR GIRO -------------------------------------------------------
 AGIRO1 <- c(0, 0, FGIRO3)
 AGIRO2 <- c(GGIRO1, 0, 0)
 AGIRO3 <- c(0, GGIRO2, PGIRO3)
 # Matrix
 AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
+lambda(AGIRO) # Checking population growth rate
 
 # TRANSITION MATRIX FOR LECY -------------------------------------------------------
 ALECY1 <- c(0, 0, FLECY3)
@@ -378,6 +381,7 @@ ALECY2 <- c(GLECY1, 0, 0)
 ALECY3 <- c(0, GLECY2, PLECY3)
 # Matrix
 ALECY <- rbind(ALECY1, ALECY2, ALECY3)
+lambda(ALECY) # Checking population growth rate
 
 # Manually adding fecundity
 
