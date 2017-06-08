@@ -71,6 +71,11 @@ adult_func <- function(x) {
     ifelse(x > 1.99999, x, 2)
 }
 
+# rescue with 2 adults
+adult_res <- function(x) {
+  ifelse(x > 1, x, 2*rbinom(1, 1, 0.5))
+}
+
 
 # checkpos makes sure that the K-occupied term is positive, assigns 0 if not
 checkpos <- function(x) {
@@ -326,34 +331,34 @@ totbiom.LECY <-
     FCACL3 <- checkpos(####(adult_func(biomCACL[3] * denCACL3)) * # checks to see if at least 2 adults are present.
                        ####(1/nonind(biomCACL[3])) *
     ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] == 1,
-    (floor((biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)), # converting maxfec into g 
+    (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)), # maxfec  
     ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1,
-           (floor((biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)),
-           (floor((biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * # fecundity function of yeartype and whether flood occurred during spawning window
-                   ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
+           (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)),
+           (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * ##else minfec # fecundity function of yeartype and whether flood occurred during spawning window
+                  ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
                      
 # '(1/nonind(NCACL[3]))' keeps FCACL3 from dividing by zero by substituting an arbitrary non-0 
 # number that will be multiplied by 0 later anyway during matrix multiplication
 # This means it's fecund per individual, rather than having overall fecundity double multipled by overall biomass (i.e. here and in matrix mult)     
 
-?floor
+#?floor
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
     FGIRO3 <- checkpos(####(adult_func(biomGIRO[3] * denGIRO3)) *  # checks to see if at least 2 adults are present. 
                             ####(1/nonind(biomGIRO[3])) *
                        ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                       (floor((biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)), # converting maxfec into g 
+                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)), ## maxfec # converting maxfec into g 
                        ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                       (floor((biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)),
-                       (floor((biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * # fecundity function of yeartype
-                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
+                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)),
+                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * ## else minfec # fecundity function of yeartype
+                        ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
     FLECY3 <- checkpos(####(adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
                                   ####(1/nonind(biomLECY[3])) *
-                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, # converting maxfec into g
-                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor((biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), # minfec
-                       ifelse(medflood[y] == 1 & wipeoutwindow.LECY[y] == 1, (floor((biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), (floor((biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1))))) * # fecundity function of yeartype
-                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < K, 1, 0)) # if K is already occupied, then no fecundity
+                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
+                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), # minfec
+                       ifelse(drought[y] == 1 | nonevent[y] == 1, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1))))) *  ##maxfec else meanfec # fecundity function of yeartype
+                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
 
 # K --------------------------------------------------------------------------------------
@@ -428,17 +433,28 @@ lambda(ALECY) # Checking population growth rate
 CACLoutput.biom[i,1:3] <- biomCACL # array of biomass of each age class for each yr projected. biomCACL = total biomass for each age class
 CACLbiomoutput[i] <- KCACL # total biomass as % of K; this is in g
 FCACLoutput[i] <- FCACL3
+CACLoutput.N [i, 1:3] <- 
+  c(biomCACL[1] * denCACL1,
+    biomCACL[2] * denCACL2,
+    biomCACL[3] * denCACL3)
     
 # GIRO
 GIROoutput.biom[i,1:3] <- biomGIRO # array of biomass of each age class for each yr projected. biomGIRO = total biomass for each age class
 GIRObiomoutput[i] <- KGIRO # total biomass as % of K; this is in g
 FGIROoutput[i] <- FGIRO3
+GIROoutput.N [i, 1:3] <- 
+  c(biomGIRO[1] * denGIRO1,
+    biomGIRO[2] * denGIRO2,
+    biomGIRO[3] * denGIRO3)
     
 # LECY
 LECYoutput.biom[i,1:3] <- biomLECY # array of biomass of each age class for each yr projected. biomLECY = total biomass for each age class
 LECYbiomoutput[i] <- KLECY # total biomass as % of K; this is in g 
 FLECYoutput[i] <- FLECY3
-
+LECYoutput.N [i, 1:3] <- 
+  c(biomLECY[1] * denLECY1,
+    biomLECY[2] * denLECY2,
+    biomLECY[3] * denLECY3)
 
 # Records flood settings of each particular projected year (0 for nonflood, 1 for flood)
 SPhighfloodoutput[i] <- SP_highflood[y]
@@ -484,6 +500,12 @@ CACLoutput.biom.DF <- as.data.frame(CACLoutput.biom) %>%
     mutate(rep = row.names(.)) %>%
     gather(stage, g, -rep) %>%
     mutate(spp = 'CACL') 
+
+CACLoutput.N.DF <- as.data.frame(CACLoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'CACL')
     
 GIROoutput.biom.DF <- as.data.frame(GIROoutput.biom) %>%
     rename(S1 = V1, S2 = V2, S3 = V3) %>%
@@ -491,23 +513,43 @@ GIROoutput.biom.DF <- as.data.frame(GIROoutput.biom) %>%
     gather(stage, g, -rep) %>%
     mutate(spp = 'GIRO')
 
+GIROoutput.N.DF <- as.data.frame(GIROoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'GIRO')
+
 LECYoutput.biom.DF <- as.data.frame(LECYoutput.biom) %>%
     rename(S1 = V1, S2 = V2, S3 = V3) %>%
     mutate(rep = row.names(.)) %>%
     gather(stage, g, -rep) %>%
     mutate(spp = 'LECY')
-   
+
+LECYoutput.N.DF <- as.data.frame(LECYoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'LECY')
+
+ALLoutput.N.DF <- rbind(CACLoutput.N.DF, GIROoutput.N.DF, LECYoutput.N.DF)  
 
 ALLoutput.biom.DF <- rbind(CACLoutput.biom.DF, GIROoutput.biom.DF, LECYoutput.biom.DF)
 
 head(ALLoutput.biom.DF)
 ALLoutput.biom.DF
+# Graph biomass
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
     geom_point() +
     geom_path() +
     facet_grid(stage~spp, scales = "free")
 
+# Graph abundance
+ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
+  geom_point() +
+  geom_path() +
+  facet_grid(stage~spp, scales = "free")
 
+# Graph flows
 ggplot(flowdata, aes(Year, SpFloodMag)) +
     geom_point() + geom_path()
 ggplot(flowdata, aes(Year, BaseDur)) +
@@ -521,10 +563,14 @@ ggplot(flowresults, aes(rep, value)) +
     geom_point() + geom_path() +
     facet_wrap(~metric)
 
-
+# Graph all species together
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
     geom_point() +
     geom_path() +
     facet_grid(~spp)
 
+ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
+  geom_point() +
+  geom_path() +
+  facet_grid(~spp)
                                         #
