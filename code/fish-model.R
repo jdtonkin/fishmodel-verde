@@ -350,11 +350,14 @@ totbiom.LECY <-
     #        (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * ##else minfec # fecundity function of yeartype and whether flood occurred during spawning window
     #               ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
     #                  
+# 
+#   FCACL3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] ==1, (biomCACL[3]/2)*0.08, 
+#                    ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1, (biomCACL[3]/2)*0.08, (biomCACL[3]/2)*0.08)) *
+#                   ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0))
+#               
+FCACL3 <- checkpos((biomCACL[3]/2)*0.08) *
+  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
 
-  FCACL3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] ==1, (biomCACL[3]/2)*0.08, 
-                   ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1, (biomCACL[3]/2)*0.08, (biomCACL[3]/2)*0.08)) *
-                  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0))
-              
 # '(1/nonind(NCACL[3]))' keeps FCACL3 from dividing by zero by substituting an arbitrary non-0 
 # number that will be multiplied by 0 later anyway during matrix multiplication
 # This means it's fecund per individual, rather than having overall fecundity double multipled by overall biomass (i.e. here and in matrix mult)     
@@ -370,9 +373,9 @@ totbiom.LECY <-
     #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * ## else minfec # fecundity function of yeartype
     #                     ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
-FGIRO3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] ==1, (biomGIRO[3]/2)*0.06, 
-                          ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1, (biomGIRO[3]/2)*0.06, (biomGIRO[3]/2)*0.06)) *
-                     ifelse(totbiom.GIRO + totbiom.GIRO + totbiom.LECY < K, 1, 0))
+FGIRO3 <- checkpos((biomGIRO[3]/2)*0.06) *
+  ifelse(totbiom.GIRO + totbiom.GIRO + totbiom.LECY < K, 1, 0)
+
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
     # FLECY3 <- checkpos(####(adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
     #                               ####(1/nonind(biomLECY[3])) *
@@ -387,9 +390,9 @@ FGIRO3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] ==1, (biomG
 #                    ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
 
 FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0,
-                   ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (biomLECY[3]/2)*0.16,
-                   ifelse(drought[y] == 1 | nonevent[y] ==1, (biomLECY[3]/2)*0.16, (biomLECY[3]/2)*0.16))) *
-                   ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
+                          (biomLECY[3]/2)*0.16) *
+                     ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
+
 # K --------------------------------------------------------------------------------------
 # CACL
 # gives total CACL biomass (g) as a percentage of K; 
