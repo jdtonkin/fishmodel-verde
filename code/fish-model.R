@@ -253,7 +253,7 @@ for(i in 1:count) {
 # flood is a vector of either medium or high magnitude
 # Summer mortality vital rate is multiplied by multiplier based on yeartype as specified above
 # Different from plant model as we have built in multiplier of severity of droughts or non-events on transition probabilities 
-
+a
 # Desert Sucker - 
 # YOY (GCACL1) survival and recruitment depends on spring flows
     GCACL1 <- aCACL1 *
