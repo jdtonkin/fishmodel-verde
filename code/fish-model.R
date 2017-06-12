@@ -1,3 +1,6 @@
+# Verde Fish Model
+# Jane Rogosch, Jono Tonkin, et al.
+# 01-Apr-17
 
 # Required libraries
 library(ggplot2)
@@ -55,7 +58,7 @@ for(k in 1:length(vitalrates[,1])) {
 
 # Average total volume of water per reach in m3: 307
 # Average total fish biomass per reach in g: 4766
-
+# Average total biomass Bonar 2004 in g/100m2: 606
 
 K = 4766 # avg. for 100-m reach across 6 replicate reaches... in g/m3 this is 15.5 g/m3
 
@@ -76,7 +79,16 @@ adult_res <- function(x) {
   ifelse(x > 1, x, 2*rbinom(1, 1, 0.5))
 }
 
-
+# rescue biomass for 2 individuals based on density (indiv/g) of species
+LECYbiom_res <- function(x) {
+  ifelse(x > 2*denLECY3, x, 2*denLECY3*rbinom(1, 1, 0.5))
+}
+GIRObiom_res <- function(x) {
+  ifelse(x > 2*denGIRO3, x, 2*denGIRO3*rbinom(1, 1, 0.5))
+}
+CACLbiom_res <- function(x) {
+  ifelse(x > 2*denCACL3, x, 2*denCACL3*rbinom(1, 1, 0.5))
+}
 # checkpos makes sure that the K-occupied term is positive, assigns 0 if not
 checkpos <- function(x) {
     ifelse(x < 0, 0, x)
@@ -228,8 +240,9 @@ biomLECY <- c(biomLECY1,
 # Inner loop #############################################################################
 for(i in 1:count) {
 
-    y = sample(nrow(flowdata), 1) 
-#y = i 
+# CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS
+# y = sample(nrow(flowdata), 1) 
+ y = i 
 # y was a random number within the length of the flow data to randomly select a year from 
 # the 'flood' and 'drought' vector. now it's directly taken from flow vector. 
 
@@ -309,17 +322,17 @@ for(i in 1:count) {
 # Total grams occupied after year -----------------------------------------------
 
 totbiom.CACL <- 
-    biomCACL[1] + #
+    #biomCACL[1] + #
     biomCACL[2] + 
     biomCACL[3] 
 
 totbiom.GIRO <- 
-    biomGIRO[1] + #
+    #biomGIRO[1] + #
     biomGIRO[2] + 
     biomGIRO[3] 
 
 totbiom.LECY <- 
-    biomLECY[1] + #
+    #biomLECY[1] + #
     biomLECY[2] + 
     biomLECY[3] 
 
@@ -328,39 +341,55 @@ totbiom.LECY <-
 ### :CLARIFY: at the moment carrying capacity is limiting spawning of all species based on the total biomass occupied at the end of the previous year. i.e. if above K, no spp spawn in that year. If spawning occurs, they can all spawn and there is no sequence, so overseeding COULD be massive.
 #### Watch the brackets, especially related to floor(), too early rounding end in zeros.
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-    FCACL3 <- checkpos(####(adult_func(biomCACL[3] * denCACL3)) * # checks to see if at least 2 adults are present.
-                       ####(1/nonind(biomCACL[3])) *
-    ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] == 1,
-    (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)), # maxfec  
-    ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1,
-           (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)),
-           (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * ##else minfec # fecundity function of yeartype and whether flood occurred during spawning window
-                  ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
-                     
+    # FCACL3 <- checkpos(####(adult_func(biomCACL[3] * denCACL3)) * # checks to see if at least 2 adults are present.
+    #                    ####(1/nonind(biomCACL[3])) *
+    # ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] == 1,
+    # (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)), # maxfec  
+    # ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1,
+    #        (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)),
+    #        (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * ##else minfec # fecundity function of yeartype and whether flood occurred during spawning window
+    #               ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
+    #                  
+
+  FCACL3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] ==1, (biomCACL[3]/2)*0.08, 
+                   ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1, (biomCACL[3]/2)*0.08, (biomCACL[3]/2)*0.08)) *
+                  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0))
+              
 # '(1/nonind(NCACL[3]))' keeps FCACL3 from dividing by zero by substituting an arbitrary non-0 
 # number that will be multiplied by 0 later anyway during matrix multiplication
 # This means it's fecund per individual, rather than having overall fecundity double multipled by overall biomass (i.e. here and in matrix mult)     
 
 #?floor
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
-    FGIRO3 <- checkpos(####(adult_func(biomGIRO[3] * denGIRO3)) *  # checks to see if at least 2 adults are present. 
-                            ####(1/nonind(biomGIRO[3])) *
-                       ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)), ## maxfec # converting maxfec into g 
-                       ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)),
-                       (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * ## else minfec # fecundity function of yeartype
-                        ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
+    # FGIRO3 <- checkpos(####(adult_func(biomGIRO[3] * denGIRO3)) *  # checks to see if at least 2 adults are present. 
+    #                         ####(1/nonind(biomGIRO[3])) *
+    #                    ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
+    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)), ## maxfec # converting maxfec into g 
+    #                    ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
+    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)),
+    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * ## else minfec # fecundity function of yeartype
+    #                     ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
+FGIRO3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] ==1, (biomGIRO[3]/2)*0.06, 
+                          ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1, (biomGIRO[3]/2)*0.06, (biomGIRO[3]/2)*0.06)) *
+                     ifelse(totbiom.GIRO + totbiom.GIRO + totbiom.LECY < K, 1, 0))
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
-    FLECY3 <- checkpos(####(adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
-                                  ####(1/nonind(biomLECY[3])) *
-                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
-                       ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), # minfec
-                       ifelse(drought[y] == 1 | nonevent[y] == 1, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1))))) *  ##maxfec else meanfec # fecundity function of yeartype
-                       ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
+    # FLECY3 <- checkpos(####(adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
+    #                               ####(1/nonind(biomLECY[3])) *
+    #                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
+    #                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), # minfec
+    #                    ifelse(drought[y] == 1 | nonevent[y] == 1, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1))))) *  ##maxfec else meanfec # fecundity function of yeartype
+    #                    ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
+# FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
+#                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, LECYbiom_res(biomLECY[3])/2*0.16,
+#                    ifelse(drought[y] == 1 | nonevent[y] ==1, LECYbiom_res(biomLECY[3])/2*0.16, LECYbiom_res(biomLECY[3])/2*0.16))) *
+#                    ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
 
+FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0,
+                   ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (biomLECY[3]/2)*0.16,
+                   ifelse(drought[y] == 1 | nonevent[y] ==1, (biomLECY[3]/2)*0.16, (biomLECY[3]/2)*0.16))) *
+                   ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
 # K --------------------------------------------------------------------------------------
 # CACL
 # gives total CACL biomass (g) as a percentage of K; 
@@ -550,10 +579,10 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
   facet_grid(stage~spp, scales = "free")
 
 # Graph flows
-ggplot(flowdata, aes(Year, SpFloodMag)) +
-    geom_point() + geom_path()
-ggplot(flowdata, aes(Year, BaseDur)) +
-    geom_point() + geom_path()
+# ggplot(flowdata, aes(Year, SpFloodMag)) +
+#     geom_point() + geom_path()
+# ggplot(flowdata, aes(Year, BaseDur)) +
+#     geom_point() + geom_path()
 
 flowresults <- as.data.frame(cbind(SPhighfloodoutput, medfloodoutput, noneventoutput, droughtoutput)) %>%
     mutate(rep = as.numeric(row.names(.))) %>%
