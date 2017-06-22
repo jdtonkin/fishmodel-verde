@@ -360,7 +360,7 @@ for(i in 1:count) {
       ((1 - (nonevent[y] * S2MortCAIN)) * CAIN_Sp_NE) *
       ((1 - (drought[y] * S2MortCAIN)) * CAIN_Sp_DR)
     
-    GCAIN2 <- aCAIN2 * denCAIN2 * denCAIN3 *
+    GCAIN2 <- aCAIN2 * denCAIN2 * (1/denCAIN3) *
       (1 - (SU_highflood[y] * S2MortCAIN)) 
       ((1 - (SP_highflood[y] * S2MortCAIN)) * CAIN_Su_HF) *
       ((1 - (medflood[y] * S2MortCAIN)) * CAIN_Su_MF) *
