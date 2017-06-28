@@ -1,6 +1,6 @@
 # Verde Fish Model
 # Jane Rogosch, Jono Tonkin, et al.
-# 01-Apr-17
+# 20-Jun-17 fix fecundity equation after meeting with Jono
 
 # Required libraries
 library(ggplot2)
@@ -38,10 +38,10 @@ for(j in 1:length(modifiers[,1])) {
 # Vital rates
 # Baseline maturation probabiliity, aCACL3 (adult senescence rate)
 # Background mortality
-# Initial volume in grams in 100-m reach
-# Fecundity based on year type
-# these are raw numbers taken from survey data: max, mean and min fecundities
-# Stage specific densities (ind./g)
+# Initial volume in grams in 100-m reach (biom - g)
+# starting with 2 adult individuals of each species
+# Fecundity based on gonadal somatic index (GSI) in literature
+# Stage specific densities (den - ind./g)
 
 vitalrates <- read.csv('data/vital-rates.csv')
 
@@ -56,9 +56,10 @@ for(k in 1:length(vitalrates[,1])) {
 # GIRO: chub
 # LECY: green sunfish
 
+# Assume biomass limits population growth of all species - carrying capacity = K
 # Average total volume of water per reach in m3: 307
 # Average total fish biomass per reach in g: 4766
-# Average total biomass Bonar 2004 in g/100m2: 606
+# For comparison average total biomass in Bonar 2004 in g/100m2: 2553, in Gibson 606.7
 
 K = 4766 # avg. for 100-m reach across 6 replicate reaches... in g/m3 this is 15.5 g/m3
 
@@ -183,10 +184,15 @@ flood <- SP_highflood + medflood # simply whether it's a flood year or not
 # An array with 3 columns (each stage class) and however many rows there are years projected 
 CACLoutput.N <- array(0, dim = c(count, 3))
 CACLoutput.biom <- array(0, dim = c(count, 3))
+CACL.lambda <- array(0, dim = c(count,1))
+
 GIROoutput.N <- array(0, dim = c(count, 3))
 GIROoutput.biom <- array(0, dim = c(count, 3))
+GIRO.lambda <- array(0, dim = c(count,1))
+
 LECYoutput.N <- array(0, dim = c(count, 3))
 LECYoutput.biom <- array(0, dim = c(count, 3))
+LECY.lambda <- array(0, dim = c(count,1))
 
 # Total biomass as % of K 
 CACLbiomoutput <- numeric(length = count)
@@ -212,25 +218,14 @@ FLECYoutput <- numeric(length = count)
 # biom = g/m3
 # den = indiv/g
 
-#NCACL <- c(biomCACL1 * denCACL1,
-#           biomCACL2 * denCACL2,
-#           biomCACL3 * denCACL3) 
-
-biomCACL <- c(biomCACL1,
+biomCACL <- c(biomCACL1, 
               biomCACL2,
               biomCACL3) 
 
-#NGIRO <- c(biomGIRO1 * denGIRO1,
-#           biomGIRO2 * denGIRO2,
-#           biomGIRO3 * denGIRO3)
 
 biomGIRO <- c(biomGIRO1,
               biomGIRO2,
               biomGIRO3)
-
-#NLECY <- c(biomLECY1 * denLECY1,
-#           biomLECY2 * denLECY2,
-#           biomLECY3 * denLECY3) 
 
 biomLECY <- c(biomLECY1,
               biomLECY2,
@@ -242,7 +237,7 @@ for(i in 1:count) {
 
 # CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS
 # y = sample(nrow(flowdata), 1) 
- y = i 
+ y = i
 # y was a random number within the length of the flow data to randomly select a year from 
 # the 'flood' and 'drought' vector. now it's directly taken from flow vector. 
 
@@ -253,16 +248,17 @@ for(i in 1:count) {
 # flood is a vector of either medium or high magnitude
 # Summer mortality vital rate is multiplied by multiplier based on yeartype as specified above
 # Different from plant model as we have built in multiplier of severity of droughts or non-events on transition probabilities 
-a
+
+# NATIVES
 # Desert Sucker - 
 # YOY (GCACL1) survival and recruitment depends on spring flows
-    GCACL1 <- aCACL1 *
-        ((1 - (SP_highflood[y] * S1MortCACL)) * CACL_Sp_HF) *
-        ((1 - (medflood[y] * S1MortCACL)) * CACL_Sp_MF) *
-        ((1 - (nonevent[y] * S1MortCACL)) * CACL_Sp_NE) *
-        ((1 - (drought[y] * S1MortCACL)) * CACL_Sp_DR)
+    GCACL1 <- aCACL1 * denCACLJ * (1/denCACL2) * # need to convert juveniles to subadults - stage 2 to account for growth
+        ((1 - (SP_highflood[y] * S2MortCACL)) * CACL_Sp_HF) *
+        ((1 - (medflood[y] * S2MortCACL)) * CACL_Sp_MF) *
+        ((1 - (nonevent[y] * S2MortCACL)) * CACL_Sp_NE) *
+        ((1 - (drought[y] * S2MortCACL)) * CACL_Sp_DR)
         
-    GCACL2 <- aCACL2 *
+    GCACL2 <- aCACL2 * denCACL2 * (1/denCACL3) *  # need to convert stage 2 biomass to stage 3 biomass to account for growth
         ((1 - (SP_highflood[y] * S2MortCACL)) * CACL_Su_HF) *
         ((1 - (medflood[y] * S2MortCACL)) * CACL_Su_MF) *
         ((1 - (nonevent[y] * S2MortCACL)) * CACL_Su_NE) *
@@ -275,15 +271,15 @@ a
         ((1 - (drought[y] * S3MortCACL)) *  CACL_Su_DR)
     
 
-# Chub
+# Roundtail Chub -
 
-     GGIRO1 <- aGIRO1 *
-        ((1 - (SP_highflood[y] * S1MortGIRO)) * GIRO_Sp_HF) *
-        ((1 - (medflood[y] * S1MortGIRO)) * GIRO_Sp_MF) *
-        ((1 - (nonevent[y] * S1MortGIRO)) * GIRO_Sp_NE) *
-        ((1 - (drought[y] * S1MortGIRO)) * GIRO_Sp_DR)
+     GGIRO1 <- aGIRO1 * denGIROJ * (1/denGIRO2) *
+        ((1 - (SP_highflood[y] * S2MortGIRO)) * GIRO_Sp_HF) *
+        ((1 - (medflood[y] * S2MortGIRO)) * GIRO_Sp_MF) *
+        ((1 - (nonevent[y] * S2MortGIRO)) * GIRO_Sp_NE) *
+        ((1 - (drought[y] * S2MortGIRO)) * GIRO_Sp_DR)
         
-    GGIRO2 <- aGIRO2 *
+    GGIRO2 <- aGIRO2 * denGIRO2 * (1/denGIRO3) *
         ((1 - (SP_highflood[y] * S2MortGIRO)) * GIRO_Su_HF) *
         ((1 - (medflood[y] * S2MortGIRO)) * GIRO_Su_MF) *
         ((1 - (nonevent[y] * S2MortGIRO)) * GIRO_Su_NE) *
@@ -294,19 +290,18 @@ a
         ((1 - (medflood[y] * S3MortGIRO)) * GIRO_Su_MF) *
         ((1 - (nonevent[y] * S3MortGIRO)) * GIRO_Su_NE) *
         ((1 - (drought[y] * S3MortGIRO)) * GIRO_Su_DR)
-    
  
 
+# NON-NATIVES
+# Green sunfish - 
 
-# Green sunfish - note the "NN"
-
- GLECY1 <- aLECY1 *
-        ((1 - (SU_highflood[y] * S1MortLECY)) * LECY_Sp_HF) *
-        ((1 - (medflood[y] * S1MortLECY)) * LECY_Sp_MF) *
-        ((1 - (nonevent[y] * S1MortLECY)) * LECY_Sp_NE) *
-        ((1 - (drought[y] * S1MortLECY)) * LECY_Sp_DR)
+ GLECY1 <- aLECY1 * denLECYJ * (1/denLECY2) *
+        ((1 - (SU_highflood[y] * S2MortLECY)) * LECY_Sp_HF) *
+        ((1 - (medflood[y] * S2MortLECY)) * LECY_Sp_MF) *
+        ((1 - (nonevent[y] * S2MortLECY)) * LECY_Sp_NE) *
+        ((1 - (drought[y] * S2MortLECY)) * LECY_Sp_DR)
         
-    GLECY2 <- aLECY2 *
+    GLECY2 <- aLECY2 * denLECY2 * (1/denLECY3) *
         ((1 - (SU_highflood[y] * S2MortLECY))  * LECY_Su_HF) *
         ((1 - (medflood[y] * S2MortLECY)) * LECY_Su_MF) *
         ((1 - (nonevent[y] * S2MortLECY)) * LECY_Su_NE) *
@@ -322,17 +317,17 @@ a
 # Total grams occupied after year -----------------------------------------------
 
 totbiom.CACL <- 
-    #biomCACL[1] + #
+    biomCACL[1] + #
     biomCACL[2] + 
     biomCACL[3] 
 
 totbiom.GIRO <- 
-    #biomGIRO[1] + #
+    biomGIRO[1] + #
     biomGIRO[2] + 
     biomGIRO[3] 
 
 totbiom.LECY <- 
-    #biomLECY[1] + #
+    biomLECY[1] + #
     biomLECY[2] + 
     biomLECY[3] 
 
@@ -341,57 +336,25 @@ totbiom.LECY <-
 ### :CLARIFY: at the moment carrying capacity is limiting spawning of all species based on the total biomass occupied at the end of the previous year. i.e. if above K, no spp spawn in that year. If spawning occurs, they can all spawn and there is no sequence, so overseeding COULD be massive.
 #### Watch the brackets, especially related to floor(), too early rounding end in zeros.
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-    # FCACL3 <- checkpos(####(adult_func(biomCACL[3] * denCACL3)) * # checks to see if at least 2 adults are present.
-    #                    ####(1/nonind(biomCACL[3])) *
-    # ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] == 1,
-    # (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)), # maxfec  
-    # ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1,
-    #        (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)),
-    #        (floor(adult_res(biomCACL[3] * denCACL3) / 2 * meanfec.CACL / denCACL1)))) * ##else minfec # fecundity function of yeartype and whether flood occurred during spawning window
-    #               ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
-    #                  
-# 
-#   FCACL3 <- checkpos(ifelse(SP_highflood[y] == 1 & spawnwindow.CACL[y] ==1, (biomCACL[3]/2)*0.08, 
-#                    ifelse(medflood[y] == 1 & spawnwindow.CACL[y] == 1, (biomCACL[3]/2)*0.08, (biomCACL[3]/2)*0.08)) *
-#                   ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0))
-#               
-FCACL3 <- checkpos((biomCACL[3]/2)*0.08) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
 
-# '(1/nonind(NCACL[3]))' keeps FCACL3 from dividing by zero by substituting an arbitrary non-0 
-# number that will be multiplied by 0 later anyway during matrix multiplication
-# This means it's fecund per individual, rather than having overall fecundity double multipled by overall biomass (i.e. here and in matrix mult)     
+# Incorporates egg survival then convert eggs/larvae to juvenile mass already to account for growth
+FCACL2 <- ((0.5*GSI.CACL*denCACL1*(1-S1MortCACL)*(1/denCACLJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)) 
+FCACL3 <- ((0.5*GSI.CACL*denCACL1*(1-S1MortCACL)*(1/denCACLJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)) 
+                
 
-#?floor
+
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
-    # FGIRO3 <- checkpos(####(adult_func(biomGIRO[3] * denGIRO3)) *  # checks to see if at least 2 adults are present. 
-    #                         ####(1/nonind(biomGIRO[3])) *
-    #                    ifelse(SP_highflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)), ## maxfec # converting maxfec into g 
-    #                    ifelse(medflood[y] == 1 & spawnwindow.GIRO[y] == 1,
-    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)),
-    #                    (floor(adult_res(biomGIRO[3] * denGIRO3) / 2 * meanfec.GIRO / denGIRO1)))) * ## else minfec # fecundity function of yeartype
-    #                     ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
 
-FGIRO3 <- checkpos((biomGIRO[3]/2)*0.06) *
-  ifelse(totbiom.GIRO + totbiom.GIRO + totbiom.LECY < K, 1, 0)
+FGIRO2 <- (0.5*GSI.GIRO*denGIRO1*(1-S1MortGIRO)*(1/denGIROJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
+FGIRO3 <- (0.5*GSI.GIRO*denGIRO1*(1-S1MortGIRO)*(1/denGIROJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
+
 
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
-    # FLECY3 <- checkpos(####(adult_func(biomLECY[3] * denLECY3)) * # checks to see if at least 2 adults are present.
-    #                               ####(1/nonind(biomLECY[3])) *
-    #                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
-    #                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), # minfec
-    #                    ifelse(drought[y] == 1 | nonevent[y] == 1, (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1)), (floor(adult_res(biomLECY[3] * denLECY3) / 2 * meanfec.LECY / denLECY1))))) *  ##maxfec else meanfec # fecundity function of yeartype
-    #                    ifelse((totbiom.CACL + totbiom.GIRO + totbiom.LECY) < 0.8*K, 1, 0)) # if K is already occupied, then no fecundity
+    
+# To incorporate summer floods wiping out nests: FLECYxx <- ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 0.5*0.10*denLECY1*(1-S1MortLECY)*(1/denLECYJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
 
-# FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0, 
-#                    ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 0, LECYbiom_res(biomLECY[3])/2*0.16,
-#                    ifelse(drought[y] == 1 | nonevent[y] ==1, LECYbiom_res(biomLECY[3])/2*0.16, LECYbiom_res(biomLECY[3])/2*0.16))) *
-#                    ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
-
-FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0,
-                          (biomLECY[3]/2)*0.16) *
-                     ifelse(totbiom.LECY + totbiom.LECY + totbiom.LECY < K, 1, 0))
+FLECY2 <- (0.5*GSI.LECY*denLECY1*(1-S1MortLECY)*(1/denLECYJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
+FLECY3 <- (0.5*GSI.LECY*denLECY1*(1-S1MortLECY)*(1/denLECYJ)) * ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY < K, 1, 0)
 
 # K --------------------------------------------------------------------------------------
 # CACL
@@ -415,14 +378,14 @@ KLECY <- 100 * (biomLECY[1] +
 # TRANSITION MATRICES --------------------------------------------------------------------
 
 # TRANSITION MATRIX FOR CACL -------------------------------------------------------
-ACACL1 <- c(0, 0, FCACL3)
+ACACL1 <- c(0, FCACL2, FCACL3)
 ACACL2 <- c(GCACL1, 0, 0)
 ACACL3 <- c(0, GCACL2, PCACL3)
 # Matrix
 ACACL <- rbind(ACACL1, ACACL2, ACACL3)
 lambda(ACACL) # Checking population growth rate
 # TRANSITION MATRIX FOR GIRO -------------------------------------------------------
-AGIRO1 <- c(0, 0, FGIRO3)
+AGIRO1 <- c(0, FGIRO2, FGIRO3)
 AGIRO2 <- c(GGIRO1, 0, 0)
 AGIRO3 <- c(0, GGIRO2, PGIRO3)
 # Matrix
@@ -430,66 +393,48 @@ AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
 lambda(AGIRO) # Checking population growth rate
 
 # TRANSITION MATRIX FOR LECY -------------------------------------------------------
-ALECY1 <- c(0, 0, FLECY3)
+ALECY1 <- c(0, FLECY2, FLECY3)
 ALECY2 <- c(GLECY1, 0, 0)
 ALECY3 <- c(0, GLECY2, PLECY3)
 # Matrix
 ALECY <- rbind(ALECY1, ALECY2, ALECY3)
 lambda(ALECY) # Checking population growth rate
 
-# Manually adding fecundity
-
-## ACACL1 <- c(0, 0, 0)
-## ACACL2 <- c(GCACL1, 0, 0)
-## ACACL3 <- c(0, GCACL2, PCACL3)
-## # Matrix
-## ACACL <- rbind(ACACL1, ACACL2, ACACL3)
-
-## # TRANSITION MATRIX FOR GIRO -------------------------------------------------------
-## AGIRO1 <- c(0, 0, 0)
-## AGIRO2 <- c(GGIRO1, 0, 0)
-## AGIRO3 <- c(0, GGIRO2, PGIRO3)
-## # Matrix
-## AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
-
-## # TRANSITION MATRIX FOR LECY -------------------------------------------------------
-## ALECY1 <- c(0, 0, 0)
-## ALECY2 <- c(GLECY1, 0, 0)
-## ALECY3 <- c(0, GLECY2, PLECY3)
-## # Matrix
-## ALECY <- rbind(ALECY1, ALECY2, ALECY3)
-
 
 # COMPILING OUTPUTS ----------------------------------------------------------------------
 # CACL
 CACLoutput.biom[i,1:3] <- biomCACL # array of biomass of each age class for each yr projected. biomCACL = total biomass for each age class
 CACLbiomoutput[i] <- KCACL # total biomass as % of K; this is in g
-FCACLoutput[i] <- FCACL3
+FCACLoutput[i] <- FCACL3 + FCACL2
 CACLoutput.N [i, 1:3] <- 
-  c(biomCACL[1] * denCACL1,
+  c(biomCACL[1] * denCACLJ,
     biomCACL[2] * denCACL2,
     biomCACL[3] * denCACL3)
-    
+CACL.lambda[i] <- lambda(ACACL)
+
 # GIRO
 GIROoutput.biom[i,1:3] <- biomGIRO # array of biomass of each age class for each yr projected. biomGIRO = total biomass for each age class
 GIRObiomoutput[i] <- KGIRO # total biomass as % of K; this is in g
-FGIROoutput[i] <- FGIRO3
+FGIROoutput[i] <- FGIRO3 + FGIRO2
 GIROoutput.N [i, 1:3] <- 
-  c(biomGIRO[1] * denGIRO1,
+  c(biomGIRO[1] * denGIROJ,
     biomGIRO[2] * denGIRO2,
     biomGIRO[3] * denGIRO3)
-    
+GIRO.lambda[i] <- lambda(AGIRO)
+
 # LECY
 LECYoutput.biom[i,1:3] <- biomLECY # array of biomass of each age class for each yr projected. biomLECY = total biomass for each age class
 LECYbiomoutput[i] <- KLECY # total biomass as % of K; this is in g 
-FLECYoutput[i] <- FLECY3
+FLECYoutput[i] <- FLECY3 + FLECY2
 LECYoutput.N [i, 1:3] <- 
-  c(biomLECY[1] * denLECY1,
+  c(biomLECY[1] * denLECYJ,
     biomLECY[2] * denLECY2,
     biomLECY[3] * denLECY3)
+LECY.lambda[i] <- lambda(ALECY)
 
 # Records flood settings of each particular projected year (0 for nonflood, 1 for flood)
 SPhighfloodoutput[i] <- SP_highflood[y]
+SUhighfloodoutput[i] <- SU_highflood[y]
 medfloodoutput[i] <- medflood[y]
 noneventoutput[i] <- nonevent[y]
 droughtoutput[i] <- drought[y]
@@ -502,27 +447,13 @@ LECYplaceholder <- FLECY3
 # MATRIX MULTIPLICATION ------------------------------------------------------------------
 # CACL
 biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total biomass for each age class
-#    biomCACL[1] <- CACLplaceholder
-    
-#nCACLpost <- c(biomCACL[1] * denCACL1, biomCACL[2] * denCACL2, biomCACL[3] * denCACL3)
-#nCACLpost <- ifelse(nCACLpost < 1, 0, 1)
-#biomCACL <- biomCACL * nCACLpost
 
 # GIRO
 biomGIRO <- AGIRO %*% biomGIRO # AGIRO is transition matrix, biomGIRO = total biomass for each age class
-#    biomGIRO[1] <- GIROplaceholder
-    
-#nGIROpost <- c(biomGIRO[1] * denGIRO1, biomGIRO[2] * denGIRO2, biomGIRO[3] * denGIRO3)
-#nGIROpost <- ifelse(nGIROpost < 1, 0, 1)
-#biomGIRO <- biomGIRO * nGIROpost
 
 # LECY
 biomLECY <- ALECY %*% biomLECY # ALECY is transition matrix, biomLECY = total biomass for each age class
-#    biomLECY[1] <- LECYplaceholder
     
-#nLECYpost <- c(biomLECY[1] * denLECY1, biomLECY[2] * denLECY2, biomLECY[3] * denLECY3)
-#nLECYpost <- ifelse(nLECYpost < 1, 0, 1)
-#biomLECY <- biomLECY * nLECYpost
 
 } # End of inner loop ####################################################################
 
@@ -568,7 +499,7 @@ ALLoutput.N.DF <- rbind(CACLoutput.N.DF, GIROoutput.N.DF, LECYoutput.N.DF)
 ALLoutput.biom.DF <- rbind(CACLoutput.biom.DF, GIROoutput.biom.DF, LECYoutput.biom.DF)
 
 head(ALLoutput.biom.DF)
-ALLoutput.biom.DF
+
 # Graph biomass
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
     geom_point() +
@@ -587,7 +518,7 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
 # ggplot(flowdata, aes(Year, BaseDur)) +
 #     geom_point() + geom_path()
 
-flowresults <- as.data.frame(cbind(SPhighfloodoutput, medfloodoutput, noneventoutput, droughtoutput)) %>%
+flowresults <- as.data.frame(cbind(SPhighfloodoutput, SUhighfloodoutput, medfloodoutput, noneventoutput, droughtoutput)) %>%
     mutate(rep = as.numeric(row.names(.))) %>%
     gather(metric, value, -rep)
 
@@ -606,3 +537,7 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
   geom_path() +
   facet_grid(~spp)
                                         #
+# Check population growth if want to
+LECY.lambda
+CACL.lambda
+GIRO.lambda
