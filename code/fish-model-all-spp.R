@@ -361,7 +361,7 @@ for(i in 1:count) {
       ((1 - (drought[y] * S2MortCAIN)) * CAIN_Sp_DR)
     
     GCAIN2 <- aCAIN2 * denCAIN2 * (1/denCAIN3) *
-      (1 - (SU_highflood[y] * S2MortCAIN)) 
+      (1 - (SU_highflood[y] * S2MortCAIN)) *
       ((1 - (SP_highflood[y] * S2MortCAIN)) * CAIN_Su_HF) *
       ((1 - (medflood[y] * S2MortCAIN)) * CAIN_Su_MF) *
       ((1 - (nonevent[y] * S2MortCAIN)) * CAIN_Su_NE) *
@@ -442,10 +442,10 @@ for(i in 1:count) {
 # Yellow bullhead
     GAMNA1 <- aAMNA1 * denAMNAJ * (1/denAMNA2) *
       (1 - (SP_highflood[y] * S2MortAMNA)) *
-      ((1 - (SU_highflood[y] * S1MortAMNA)) * AMNA_Sp_HF) *
-      ((1 - (medflood[y] * S1MortAMNA)) * AMNA_Sp_MF) *
-      ((1 - (nonevent[y] * S1MortAMNA)) * AMNA_Sp_NE) *
-      ((1 - (drought[y] * S1MortAMNA)) * AMNA_Sp_DR)
+      ((1 - (SU_highflood[y] * S2MortAMNA)) * AMNA_Sp_HF) *
+      ((1 - (medflood[y] * S2MortAMNA)) * AMNA_Sp_MF) *
+      ((1 - (nonevent[y] * S2MortAMNA)) * AMNA_Sp_NE) *
+      ((1 - (drought[y] * S2MortAMNA)) * AMNA_Sp_DR)
     
     GAMNA2 <- aAMNA2 * denAMNA2 * (1/denAMNA3) *
       (1 - (SP_highflood[y] * S2MortAMNA)) *
@@ -891,3 +891,6 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
   geom_path() +
   facet_grid(~spp)
                                         #
+
+CACL.lambda
+LECY.lambda
