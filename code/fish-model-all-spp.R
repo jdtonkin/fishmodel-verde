@@ -60,11 +60,11 @@ for(k in 1:length(vitalrates[,1])) {
 # CYLU: red shiner
 # AMNA: yellow bullhead
 
-# Average total volume of water per reach in m3: 307
-# Average total fish biomass per reach in g: 4766
+# Average total volume of water per 100 m reach in m3: 307
+# Average total fish biomass per 100 m reach in g: 4766
 # Average total biomass Bonar 2004 in g/100m2: 606
 
-K = 4766 # avg. for 100-m reach across 6 replicate reaches... in g/m3 this is 15.5 g/m3
+K = 47660 # avg. for 1-km reach across 6 replicate reaches... in g/m3 this is 155 g/m3
 
 # Bunch of functions -----------------------------------------
 
@@ -78,10 +78,10 @@ adult_func <- function(x) {
     ifelse(x > 1.99999, x, 2)
 }
 
-# rescue with 2 adults
-adult_res <- function(x) {
-  ifelse(x > 1, x, 2*rbinom(1, 1, 0.5))
-}
+# # rescue with 2 adults
+# adult_res <- function(x) {
+#   ifelse(x > 1, x, 2*rbinom(1, 1, 0.5))
+# }
 
 # rescue biomass for 2 individuals based on density (indiv/g) of species
 biom_res <- function(x, spp) { # x is biom object for a given species (e.g. biomCACL), spp is name of species in quotes (e.g. "CACL")
@@ -499,62 +499,60 @@ totbiom.AMNA <-
   biomAMNA[3] 
 
 ### :CLARIFY: at the moment carrying capacity is limiting spawning of all species based on the total biomass occupied at the end of the previous year. i.e. if above K, no spp spawn in that year. If spawning occurs, they can all spawn and there is no sequence, so overseeding COULD be massive.
-
+b <- 1/47660
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-FCACL2 <- (0.5*GSI.CACL*denCACL1*(1-S1MortCACL)*(1/denCACLJ)) *  
-             ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-                      totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
-FCACL3 <- (0.5 * GSI.CACL * denCACL1 * (1 - S1MortCACL) * (1/denCACLJ))*
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
+FCACL2 <- ((0.5*GSI.CACL*(1-S1MortCACL))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCACL1*(1/denCACLJ)
+FCACL3 <- ((0.5*GSI.CACL*(1-S1MortCACL))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCACL1*(1/denCACLJ)
 
 
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
-FGIRO2 <- (0.5*GSI.GIRO*denGIRO1*(1-S1MortGIRO)*(1/denGIROJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
-FGIRO3 <- checkpos((0.5 * GSI.GIRO * denGIRO1 * (1 - S1MortGIRO) * (1/denGIROJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0))
+FGIRO2 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denGIRO1*(1/denGIROJ)
+FGIRO3 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denGIRO1*(1/denGIROJ)
 
 # POTENTIAL CAIN FECUNDITY ---------------------------------------------------------
 
-FCAIN3 <- checkpos(0.5 * GSI.CAIN * denCAIN1 * (1-S1MortCAIN) * (1/denCAINJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
+FCAIN3 <- ((0.5*GSI.CAIN*(1-S1MortCAIN))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCAIN1*(1/denCAINJ)
 
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
-FLECY2 <- (0.5*GSI.LECY*denLECY1*(1-S1MortLECY)*(1/denLECYJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
-FLECY3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0,
-                          (0.5 * GSI.LECY * denLECY1 * (1 - S1MortLECY) * (1/denLECYJ)) *
-                     ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-                              totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)))
+FLECY2 <- ((0.5*GSI.LECY*(1-S1MortLECY))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denLECY1*(1/denLECYJ)
+FLECY3 <- ((0.5*GSI.LECY*(1-S1MortLECY))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denLECY1*(1/denLECYJ)
 # POTENTIAL MIDO FECUNDITY ---------------------------------------------------------
 
-FMIDO3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.MIDO[y] == 1, 0,
-                          (0.5 * GSI.MIDO * denMIDO1 * (1 - S1MortMIDO) * (1/denMIDOJ)) *
-                     ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-                              totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)))
-# POTENTIAL CYLU FECUNDITY ---------------------------------------------------------
-FCYLUJ <- checkpos(0.5*GSI.CYLU * denCYLU1 * (1-S1MortCYLU) * (1/denCYLUJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
-FCYLU2 <- checkpos(0.5*GSI.CYLU * denCYLU1 * (1-S1MortCYLU) * (1/denCYLUJ)) *
-  ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-           totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
+FMIDO3 <- ((0.5*GSI.MIDO*(1-S1MortMIDO))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denMIDO1*(1/denMIDOJ)
 
-FCYLU3 <- checkpos(0.5*GSI.CYLU * denCYLU1 * (1-S1MortCYLU) * (1/denCYLUJ)) *
-                     ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-                              totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)
+# POTENTIAL CYLU FECUNDITY ---------------------------------------------------------
+FCYLUJ <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCYLU1*(1/denCYLUJ)
+FCYLU2 <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCYLU1*(1/denCYLUJ)
+FCYLU3 <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denCYLU1*(1/denCYLUJ)
 
 # POTENTIAL AMNA FECUNDITY ---------------------------------------------------------
 
-FAMNA3 <- checkpos(ifelse(SU_highflood[y] == 1 & wipeoutwindow.LECY[y] == 1, 0,
-                          (0.5 * GSI.AMNA * denAMNA1 * (1-S1MortAMNA) * (1/denAMNAJ)) *
-                     ifelse(totbiom.CACL + totbiom.GIRO + totbiom.LECY + totbiom.CAIN + totbiom.LECY + 
-                              totbiom.MIDO + totbiom.CYLU + totbiom.AMNA < K, 1, 0)))
+FAMNA3 <- ((0.5*GSI.AMNA*(1-S1MortAMNA))/
+             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+  denAMNA1*(1/denAMNAJ)
+
 
 # K --------------------------------------------------------------------------------------
 # CACL
