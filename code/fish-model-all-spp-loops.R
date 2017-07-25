@@ -23,10 +23,10 @@ head(flowdata)
 
 burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
 count <- burnin + length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
-z <- c(sample(nrow(flowdata), burnin), 1:54) # inner loop - annual flow sequence over which fish model will run
+
 
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
-iterations <- 2 # number of replicate projections to run (mid loop)
+iterations <- 10 # number of replicate projections to run (mid loop)
 
 # Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -211,13 +211,14 @@ CAINrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations
 MIDOrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
 CYLUrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
 AMNArep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+Total.N <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))
 
 # Inner loop details ---------------------------------------------------------------------
 # 'count' - number of years to project simulations (inner loop)
 
 # Output of biomass and no. ind. for each age class for each year projected  
 # An array with 3 columns (each stage class) and however many rows there are years projected 
-?array
+
 CACLoutput.N <- array(0, dim = c(count, 3))
 CACLoutput.biom <- array(0, dim = c(count, 3))
 CACL.lambda <- array(0, dim = c(count,1))
@@ -271,44 +272,47 @@ FMIDOoutput <- numeric(length = count)
 FCYLUoutput <- numeric(length = count)
 FAMNAoutput <- numeric(length = count)
 
-# N gives the total number of individuals for each age class.
-# Initially here, this is found by multiplying the number of g occupied by a given class
-# by the density per g
-# biom = g/m3
-# den = indiv/g
 
-biomCACL <- c(biomCACL1,
-              biomCACL2,
-              biomCACL3) 
-
-biomGIRO <- c(biomGIRO1,
-              biomGIRO2,
-              biomGIRO3)
-
-biomLECY <- c(biomLECY1,
-              biomLECY2,
-              biomLECY3) 
-
-biomCAIN <- c(biomCAIN1,
-              biomCAIN2,
-              biomCAIN3) 
-
-biomMIDO <- c(biomMIDO1,
-              biomMIDO2,
-              biomMIDO3) 
-
-biomCYLU <- c(biomCYLU1,
-              biomCYLU2,
-              biomCYLU3) 
-
-biomAMNA <- c(biomAMNA1,
-              biomAMNA2,
-              biomAMNA3) 
 
 # Mid loop ###############################################################################
 # Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
 for(iter in 1:iterations) {
-
+  
+  z <- c(sample(nrow(flowdata), burnin), 1:54) # mid loop - annual flow sequence over which fish model will run
+# Need to read in initial biom every time so starting biomass is reset to be equal across spp and stages
+  # N gives the total number of individuals for each age class.
+  # Initially here, this is found by multiplying the number of g occupied by a given class
+  # by the density per g
+  # biom = g/m3
+  # den = indiv/g
+  biomCACL <- c(biomCACL1,
+                biomCACL2,
+                biomCACL3) 
+  
+  biomGIRO <- c(biomGIRO1,
+                biomGIRO2,
+                biomGIRO3)
+  
+  biomLECY <- c(biomLECY1,
+                biomLECY2,
+                biomLECY3) 
+  
+  biomCAIN <- c(biomCAIN1,
+                biomCAIN2,
+                biomCAIN3) 
+  
+  biomMIDO <- c(biomMIDO1,
+                biomMIDO2,
+                biomMIDO3) 
+  
+  biomCYLU <- c(biomCYLU1,
+                biomCYLU2,
+                biomCYLU3) 
+  
+  biomAMNA <- c(biomAMNA1,
+                biomAMNA2,
+                biomAMNA3) 
+  
 # Inner loop #############################################################################
 for(i in 1:count) {
 
@@ -770,13 +774,16 @@ biomAMNA <- AAMNA %*% biomAMNA #biom_res(biomAMNA, "AMNA") # AAMNA is transition
 } # End of inner loop ####################################################################
 
 # Mean values for each iteration run over each sequence of years
-CACLrep[iter] <- apply(CACLoutput.N[61:75, 2:3], 1, sum)
-GIROrep[iter] <- apply(GIROoutput.N[61:75, 2:3], 1, sum)
-LECYrep[iter] <- apply(LECYoutput.N[61:75, 2:3], 1, sum)
-CAINrep[iter] <- apply(CAINoutput.N[61:75, 2:3], 1, sum)
-MIDOrep[iter] <- apply(MIDOoutput.N[61:75, 2:3], 1, sum)
-CYLUrep[iter] <- apply(CYLUoutput.N[61:75, 2:3], 1, sum)
-AMNArep[iter] <- apply(AMNAoutput.N[61:75, 2:3], 1, sum)
+CACLrep[,iter] <- apply(CACLoutput.N[61:75, 2:3], 1, sum)
+GIROrep[,iter] <- apply(GIROoutput.N[61:75, 2:3], 1, sum)
+LECYrep[,iter] <- apply(LECYoutput.N[61:75, 2:3], 1, sum)
+CAINrep[,iter] <- apply(CAINoutput.N[61:75, 2:3], 1, sum)
+MIDOrep[,iter] <- apply(MIDOoutput.N[61:75, 2:3], 1, sum)
+CYLUrep[,iter] <- apply(CYLUoutput.N[61:75, 2:3], 1, sum)
+AMNArep[,iter] <- apply(AMNAoutput.N[61:75, 2:3], 1, sum)
+Total.N[,iter] <- apply(
+  cbind(CACLoutput.N[61:75, 2:3], GIROoutput.N[61:75, 2:3], LECYoutput.N[61:75, 2:3], CAINoutput.N[61:75, 2:3], 
+        MIDOoutput.N[61:75, 2:3], CYLUoutput.N[61:75, 2:3], AMNAoutput.N[61:75, 2:3]), 1, sum)
   
 } # End of mid loop ######################################################################
 
@@ -912,12 +919,18 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N
   facet_grid(~spp)
 
 # Relative abundance
-sum.S2S3 <- tapply(ALLoutput.N.DF$N[ALLoutput.N.DF$stage=="S2" | ALLoutput.N.DF$stage=="S3"],
-                   INDEX = list(as.numeric(ALLoutput.N.DF$rep[ALLoutput.N.DF$stage=="S2" | ALLoutput.N.DF$stage=="S3"]),
-                                ALLoutput.N.DF$spp[ALLoutput.N.DF$stage=="S2" | ALLoutput.N.DF$stage=="S3"]), 
-                   FUN = sum)
-sum.S2S3 <- sum.S2S3[61:75,] # for 1994 - 2008
-RelAbu.model <- sweep(sum.S2S3, MARGIN = 1, rowSums(sum.S2S3), '/') # check: sum.S2S3[1]/sum(sum.S2S3[1,])
+sum.Verde <- as.matrix(read.csv("data/sum.Verde94-08.csv", header = T, row.names = 1))
+RelAbu.Verde <- sweep(sum.Verde, MARGIN = 1, rowSums(sum.Verde), '/')
+
+CACL.RelAbu <- CACLrep/Total.N
+CACL.mean.RA <- apply(CACL.RelAbu, 1, mean)
+CACL.sd.RA <- apply(CACL.RelAbu, 1, sd)
+CACL.SE.RA <- CACL.sd.RA/sqrt(iterations)
+CACL.RMSE <- sqrt(mean((RelAbu.Verde[,"CACL"] - CACL.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+CACL.NRMSE <- (sqrt(mean((RelAbu.Verde[,"CACL"] - CACL.mean.RA)^2)))/(max(RelAbu.Verde[,"CACL"]) - min(RelAbu.Verde[,"CACL"]))
+plot(years, RelAbu.Verde[,"CACL"]) 
+points(years, CACL.mean.RA, pch = 19)
+
                                         #
 
 tail(AMNAoutput.N.DF)
@@ -931,3 +944,4 @@ head(MIDOoutput.N.DF)
 head(LECYoutput.N.DF)
 head(GIROoutput.N.DF)
 head(CYLUoutput.N.DF)
+#?sink
