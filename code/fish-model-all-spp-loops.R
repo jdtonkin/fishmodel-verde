@@ -23,10 +23,8 @@ head(flowdata)
 
 burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
 count <- burnin + length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
-
-
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
-iterations <- 10 # number of replicate projections to run (mid loop)
+iterations <- 1000 # number of replicate projections to run (mid loop)
 
 # Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -787,6 +785,7 @@ Total.N[,iter] <- apply(
   
 } # End of mid loop ######################################################################
 
+# 1000 iterations takes less than 9 mins
 # ########################################################################################
 # OUTPUTS --------------------------------------------------------------------------------
 # ########################################################################################
@@ -920,7 +919,7 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N
 
 # Relative abundance
 sum.Verde <- as.matrix(read.csv("data/sum.Verde94-08.csv", header = T, row.names = 1))
-RelAbu.Verde <- sweep(sum.Verde, MARGIN = 1, rowSums(sum.Verde), '/')
+RelAbu.Verde <- sweep(sum.Verde, MARGIN = 1, rowSums(sum.Verde), '/')  # check: sum.Verde[1]/sum(sum.Verde[1,])
 
 CACL.RelAbu <- CACLrep/Total.N
 CACL.mean.RA <- apply(CACL.RelAbu, 1, mean)
@@ -928,8 +927,10 @@ CACL.sd.RA <- apply(CACL.RelAbu, 1, sd)
 CACL.SE.RA <- CACL.sd.RA/sqrt(iterations)
 CACL.RMSE <- sqrt(mean((RelAbu.Verde[,"CACL"] - CACL.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
 CACL.NRMSE <- (sqrt(mean((RelAbu.Verde[,"CACL"] - CACL.mean.RA)^2)))/(max(RelAbu.Verde[,"CACL"]) - min(RelAbu.Verde[,"CACL"]))
-plot(years, RelAbu.Verde[,"CACL"]) 
+plot(years, RelAbu.Verde[,"CACL"], ylim = c(0, 0.35)) 
 points(years, CACL.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = CACL.mean.RA + CACL.SE.RA, 
+       x1 = c(1994:2008), y1 = CACL.mean.RA - CACL.SE.RA, code = 3, length = 0.1, angle = 90)
 
                                         #
 
