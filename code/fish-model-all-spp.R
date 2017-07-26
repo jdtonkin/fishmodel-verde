@@ -1,6 +1,7 @@
 # Verde Fish Model
 # Jane Rogosch, Jono Tonkin, et al.
 # 01-Mar-17
+# 26-Jul-17
 
 # Required libraries
 library(ggplot2)
@@ -21,10 +22,10 @@ head(flowdata)
 # BaseDur - baseflow duration in days
 # flooddate is peak dates of all floods (Oct 1 = 1)
 
-count <- length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
-# burnin = 100 # number of years to discard as burn in during long term mean estimation 
+burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
+count <- burnin + length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
-# replicates <- 100 # number of replicate projections to run (mid loop)
+iterations <- 1000 # number of replicate projections to run (mid loop)
 
 # Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -198,11 +199,25 @@ nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag, BD = flowdata$BaseDur, Suf
 # ITERATION PARAMETERS -------------------------------------------------------------------
 # Setting up arrays/vectors to fill with data from loops
 
+# Mid loop details -----------------------------------------------------------------------
+# 'iterations' - number of replicate flow sequences to run for averaging, SE, etc.
+
+years <- as.character(seq(1994, 2008, by = 1))
+CACLrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+GIROrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+LECYrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+CAINrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+MIDOrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+CYLUrep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+AMNArep <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))  
+Total.N <- array(0, dim = c(15, iterations), dimnames = list(years, 1:iterations))
+
 # Inner loop details ---------------------------------------------------------------------
 # 'count' - number of years to project simulations (inner loop)
 
 # Output of biomass and no. ind. for each age class for each year projected  
 # An array with 3 columns (each stage class) and however many rows there are years projected 
+
 CACLoutput.N <- array(0, dim = c(count, 3))
 CACLoutput.biom <- array(0, dim = c(count, 3))
 CACL.lambda <- array(0, dim = c(count,1))
@@ -256,46 +271,56 @@ FMIDOoutput <- numeric(length = count)
 FCYLUoutput <- numeric(length = count)
 FAMNAoutput <- numeric(length = count)
 
-# N gives the total number of individuals for each age class.
-# Initially here, this is found by multiplying the number of g occupied by a given class
-# by the density per g
-# biom = g/m3
-# den = indiv/g
 
-biomCACL <- c(biomCACL1,
-              biomCACL2,
-              biomCACL3) 
 
-biomGIRO <- c(biomGIRO1,
-              biomGIRO2,
-              biomGIRO3)
-
-biomLECY <- c(biomLECY1,
-              biomLECY2,
-              biomLECY3) 
-
-biomCAIN <- c(biomCAIN1,
-              biomCAIN2,
-              biomCAIN3) 
-
-biomMIDO <- c(biomMIDO1,
-              biomMIDO2,
-              biomMIDO3) 
-
-biomCYLU <- c(biomCYLU1,
-              biomCYLU2,
-              biomCYLU3) 
-
-biomAMNA <- c(biomAMNA1,
-              biomAMNA2,
-              biomAMNA3) 
-
+# Mid loop ###############################################################################
+# Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
+for(iter in 1:iterations) {
+  
+  z <- c(sample(nrow(flowdata), burnin), 1:54) # mid loop - annual flow sequence over which fish model will run
+ 
+# Need to read in initial biom every time so starting biomass is reset to be equal across spp and stages
+  # N gives the total number of individuals for each age class.
+  # Initially here, this is found by multiplying the number of g occupied by a given class
+  # by the density per g
+  # biom = g/m3
+  # den = indiv/g
+  biomCACL <- c(biomCACL1,
+                biomCACL2,
+                biomCACL3) 
+  
+  biomGIRO <- c(biomGIRO1,
+                biomGIRO2,
+                biomGIRO3)
+  
+  biomLECY <- c(biomLECY1,
+                biomLECY2,
+                biomLECY3) 
+  
+  biomCAIN <- c(biomCAIN1,
+                biomCAIN2,
+                biomCAIN3) 
+  
+  biomMIDO <- c(biomMIDO1,
+                biomMIDO2,
+                biomMIDO3) 
+  
+  biomCYLU <- c(biomCYLU1,
+                biomCYLU2,
+                biomCYLU3) 
+  
+  biomAMNA <- c(biomAMNA1,
+                biomAMNA2,
+                biomAMNA3) 
+  
 # Inner loop #############################################################################
 for(i in 1:count) {
 
-# CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS
+# CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS (+ BURNIN YEARS)
  #y = sample(nrow(flowdata), 1) 
- y = i 
+ #y = i
+ y = z[i] # sample burnin + 54 years
+
 # y was a random number within the length of the flow data to randomly select a year from 
 # the 'flood' and 'drought' vector. now it's directly taken from flow vector. 
 
@@ -522,11 +547,11 @@ FMIDO3 <- ((0.5*GSI.MIDO*(1-S1MortMIDO))/
   denMIDO1*(1/denMIDOJ)
 
 # POTENTIAL CYLU FECUNDITY ---------------------------------------------------------
-# because they spawn at least twice a season
+# because they are serial spawners, they are allowed to spawn twice a season
 FCYLUJ <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
              (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
   denCYLU1*(1/denCYLUJ)
-FCYLU2 <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
+FCYLU2 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))/
              (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
   denCYLU1*(1/denCYLUJ)
 FCYLU3 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))/
@@ -748,6 +773,24 @@ biomAMNA <- AAMNA %*% biomAMNA #biom_res(biomAMNA, "AMNA") # AAMNA is transition
 
 } # End of inner loop ####################################################################
 
+# Mean values for each iteration run over each sequence of years
+CACLrep[,iter] <- apply(CACLoutput.N[61:75, 2:3], 1, sum)
+GIROrep[,iter] <- apply(GIROoutput.N[61:75, 2:3], 1, sum)
+LECYrep[,iter] <- apply(LECYoutput.N[61:75, 2:3], 1, sum)
+CAINrep[,iter] <- apply(CAINoutput.N[61:75, 2:3], 1, sum)
+MIDOrep[,iter] <- apply(MIDOoutput.N[61:75, 2:3], 1, sum)
+CYLUrep[,iter] <- apply(CYLUoutput.N[61:75, 2:3], 1, sum)
+AMNArep[,iter] <- apply(AMNAoutput.N[61:75, 2:3], 1, sum)
+Total.N[,iter] <- apply(
+  cbind(CACLoutput.N[61:75, 2:3], GIROoutput.N[61:75, 2:3], LECYoutput.N[61:75, 2:3], CAINoutput.N[61:75, 2:3], 
+        MIDOoutput.N[61:75, 2:3], CYLUoutput.N[61:75, 2:3], AMNAoutput.N[61:75, 2:3]), 1, sum)
+
+} # End of mid loop ######################################################################
+
+# 1000 iterations takes less than 9 mins
+# ########################################################################################
+# OUTPUTS --------------------------------------------------------------------------------
+# ########################################################################################
 
 CACLoutput.biom.DF <- as.data.frame(CACLoutput.biom) %>%
     rename(S1 = V1, S2 = V2, S3 = V3) %>%
@@ -838,7 +881,6 @@ ALLoutput.N.DF <- rbind(CACLoutput.N.DF, GIROoutput.N.DF, LECYoutput.N.DF, CAINo
 ALLoutput.biom.DF <- rbind(CACLoutput.biom.DF, GIROoutput.biom.DF, LECYoutput.biom.DF, CAINoutput.biom.DF, MIDOoutput.biom.DF, CYLUoutput.biom.DF, AMNAoutput.biom.DF)
 
 head(ALLoutput.biom.DF)
-ALLoutput.biom.DF
 
 # Graph biomass
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
@@ -876,10 +918,165 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N
   geom_point() +
   geom_path() +
   facet_grid(~spp)
-                                        #
+
+# Relative abundance ------------------------------------------------------------------------------
+Verde <- read.csv("data/Rel_Abu_Verde_94-08.csv", header = T)
+par(mfrow = c(3,3), mar = c(4,4,1,0), oma=c(1,0,1,1))
+plot(Verde$Year[Verde$SppCode == "CACL"], Verde$MeanRelAbu[Verde$SppCode == "CACL"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "CACL", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] - Verde$SERelAbu[Verde$SppCode == "CACL"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] + Verde$SERelAbu[Verde$SppCode == "CACL"], code = 3, length = 0.1, angle = 90)
+
+# CACL
+CACL.RelAbu <- CACLrep/Total.N
+CACL.mean.RA <- apply(CACL.RelAbu, 1, mean)
+CACL.sd.RA <- apply(CACL.RelAbu, 1, sd)
+CACL.SE.RA <- CACL.sd.RA/sqrt(iterations)
+CACL.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CACL"] - CACL.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+CACL.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CACL"] - CACL.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "CACL"]) - min(Verde$MeanRelAbu[Verde$SppCode == "CACL"]))
+
+plot(Verde$Year[Verde$SppCode == "CACL"], Verde$MeanRelAbu[Verde$SppCode == "CACL"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "CACL", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] - Verde$SERelAbu[Verde$SppCode == "CACL"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] + Verde$SERelAbu[Verde$SppCode == "CACL"], code = 3, length = 0.1, angle = 90)
+points(years, CACL.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = CACL.mean.RA + CACL.SE.RA, 
+       x1 = c(1994:2008), y1 = CACL.mean.RA - CACL.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# GIRO
+GIRO.RelAbu <- GIROrep/Total.N
+GIRO.mean.RA <- apply(GIRO.RelAbu, 1, mean)
+GIRO.sd.RA <- apply(GIRO.RelAbu, 1, sd)
+GIRO.SE.RA <- GIRO.sd.RA/sqrt(iterations)
+GIRO.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "GIRO"] - GIRO.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+GIRO.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "GIRO"] - GIRO.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "GIRO"]) - min(Verde$MeanRelAbu[Verde$SppCode == "GIRO"]))
+
+plot(Verde$Year[Verde$SppCode == "GIRO"], Verde$MeanRelAbu[Verde$SppCode == "GIRO"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "GIRO", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "GIRO"] - Verde$SERelAbu[Verde$SppCode == "GIRO"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "GIRO"] + Verde$SERelAbu[Verde$SppCode == "GIRO"], code = 3, length = 0.1, angle = 90)
+points(years, GIRO.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = GIRO.mean.RA + GIRO.SE.RA, 
+       x1 = c(1994:2008), y1 = GIRO.mean.RA - GIRO.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# LECY
+LECY.RelAbu <- LECYrep/Total.N
+LECY.mean.RA <- apply(LECY.RelAbu, 1, mean)
+LECY.sd.RA <- apply(LECY.RelAbu, 1, sd)
+LECY.SE.RA <- LECY.sd.RA/sqrt(iterations)
+LECY.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "LECY"] - LECY.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+LECY.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "LECY"] - LECY.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "LECY"]) - min(Verde$MeanRelAbu[Verde$SppCode == "LECY"]))
+
+plot(Verde$Year[Verde$SppCode == "LECY"], Verde$MeanRelAbu[Verde$SppCode == "LECY"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "LECY", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] - Verde$SERelAbu[Verde$SppCode == "LECY"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] + Verde$SERelAbu[Verde$SppCode == "LECY"], code = 3, length = 0.1, angle = 90)
+points(years, LECY.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = LECY.mean.RA + LECY.SE.RA, 
+       x1 = c(1994:2008), y1 = LECY.mean.RA - LECY.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# CAIN
+CAIN.RelAbu <- CAINrep/Total.N
+CAIN.mean.RA <- apply(CAIN.RelAbu, 1, mean)
+CAIN.sd.RA <- apply(CAIN.RelAbu, 1, sd)
+CAIN.SE.RA <- CAIN.sd.RA/sqrt(iterations)
+CAIN.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CAIN"] - CAIN.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+CAIN.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CAIN"] - CAIN.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "CAIN"]) - min(Verde$MeanRelAbu[Verde$SppCode == "CAIN"]))
+
+plot(Verde$Year[Verde$SppCode == "CAIN"], Verde$MeanRelAbu[Verde$SppCode == "CAIN"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "CAIN", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CAIN"] - Verde$SERelAbu[Verde$SppCode == "CAIN"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CAIN"] + Verde$SERelAbu[Verde$SppCode == "CAIN"], code = 3, length = 0.1, angle = 90)
+points(years, CAIN.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = CAIN.mean.RA + CAIN.SE.RA, 
+       x1 = c(1994:2008), y1 = CAIN.mean.RA - CAIN.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# MIDO
+MIDO.RelAbu <- MIDOrep/Total.N
+MIDO.mean.RA <- apply(MIDO.RelAbu, 1, mean)
+MIDO.sd.RA <- apply(MIDO.RelAbu, 1, sd)
+MIDO.SE.RA <- MIDO.sd.RA/sqrt(iterations)
+MIDO.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "MIDO"] - MIDO.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+MIDO.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "MIDO"] - MIDO.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "MIDO"]) - min(Verde$MeanRelAbu[Verde$SppCode == "MIDO"]))
+
+plot(Verde$Year[Verde$SppCode == "MIDO"], Verde$MeanRelAbu[Verde$SppCode == "MIDO"], ylim = c(0, 1),
+     ylab = "Relative Abundance", main = "MIDO", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "MIDO"] - Verde$SERelAbu[Verde$SppCode == "MIDO"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "MIDO"] + Verde$SERelAbu[Verde$SppCode == "MIDO"], code = 3, length = 0.1, angle = 90)
+points(years, MIDO.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = MIDO.mean.RA + MIDO.SE.RA, 
+       x1 = c(1994:2008), y1 = MIDO.mean.RA - MIDO.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# CYLU
+CYLU.RelAbu <- CYLUrep/Total.N
+CYLU.mean.RA <- apply(CYLU.RelAbu, 1, mean)
+CYLU.sd.RA <- apply(CYLU.RelAbu, 1, sd)
+CYLU.SE.RA <- CYLU.sd.RA/sqrt(iterations)
+CYLU.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - CYLU.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+CYLU.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - CYLU.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "CYLU"]) - min(Verde$MeanRelAbu[Verde$SppCode == "CYLU"]))
+
+plot(Verde$Year[Verde$SppCode == "CYLU"], Verde$MeanRelAbu[Verde$SppCode == "CYLU"], ylim = c(0, 1),
+     ylab = "Relative Abundance", main = "CYLU", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - Verde$SERelAbu[Verde$SppCode == "CYLU"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] + Verde$SERelAbu[Verde$SppCode == "CYLU"], code = 3, length = 0.1, angle = 90)
+points(years, CYLU.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = CYLU.mean.RA + CYLU.SE.RA, 
+       x1 = c(1994:2008), y1 = CYLU.mean.RA - CYLU.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# AMNA
+AMNA.RelAbu <- AMNArep/Total.N
+AMNA.mean.RA <- apply(AMNA.RelAbu, 1, mean)
+AMNA.sd.RA <- apply(AMNA.RelAbu, 1, sd)
+AMNA.SE.RA <- AMNA.sd.RA/sqrt(iterations)
+AMNA.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "AMNA"] - AMNA.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
+AMNA.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "AMNA"] - AMNA.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "AMNA"]) - min(Verde$MeanRelAbu[Verde$SppCode == "AMNA"]))
+
+plot(Verde$Year[Verde$SppCode == "AMNA"], Verde$MeanRelAbu[Verde$SppCode == "AMNA"], ylim = c(0, 0.5),
+     ylab = "Relative Abundance", main = "AMNA", xlab = "Year")
+arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "AMNA"] - Verde$SERelAbu[Verde$SppCode == "AMNA"], 
+       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "AMNA"] + Verde$SERelAbu[Verde$SppCode == "AMNA"], code = 3, length = 0.1, angle = 90)
+points(years, AMNA.mean.RA, pch = 19)
+arrows(x0 = c(1994:2008), y0 = AMNA.mean.RA + AMNA.SE.RA, 
+       x1 = c(1994:2008), y1 = AMNA.mean.RA - AMNA.SE.RA, code = 3, length = 0.1, angle = 90)
+
+# Correlation tests
+Model.RelAbu <- rbind(AMNA.mean.RA, CACL.mean.RA, CAIN.mean.RA, CYLU.mean.RA, GIRO.mean.RA, LECY.mean.RA, MIDO.mean.RA)
+
+#filter(Verde, Year == 1994)
+
+spear.cor <- c(
+cor(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spear"),
+cor(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spear"),
+cor(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spear"),
+cor(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spear"),
+cor(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spear"),
+cor(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spear"),
+cor(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spear"),
+cor(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spear"),
+cor(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spear"),
+cor(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spear"),
+cor(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spear"),
+cor(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spear"),
+cor(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spear"),
+cor(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spear"),
+cor(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spear"))
+spear <- cbind(Verde$Year[1:15], spear.cor)
+round(spear, digits = 2)
+pears <- cbind(Verde$Year[1:15], pearson.cor)
+round(pears, digits = 2)
+
 
 tail(AMNAoutput.N.DF)
 tail(MIDOoutput.N.DF)
 tail(LECYoutput.N.DF)
 tail(GIROoutput.N.DF)
 tail(CYLUoutput.N.DF)
+
+head(AMNAoutput.N.DF)
+head(MIDOoutput.N.DF)
+head(LECYoutput.N.DF)
+head(GIROoutput.N.DF)
+head(CYLUoutput.N.DF)
+
+
+
