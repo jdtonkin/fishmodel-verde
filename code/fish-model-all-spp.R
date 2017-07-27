@@ -16,8 +16,8 @@ rm(list = ls()) # clearing the workspace
 # bringing in flow data
 # Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
 flowdata <- read.csv("data/flowdata_Verde.csv") 
-str(flowdata)
-head(flowdata)
+  # str(flowdata)
+  # head(flowdata)
 # FloodMag - magnitude of flood in cfs
 # BaseDur - baseflow duration in days
 # flooddate is peak dates of all floods (Oct 1 = 1)
@@ -25,7 +25,7 @@ head(flowdata)
 burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
 count <- burnin + length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
-iterations <- 1000 # number of replicate projections to run (mid loop)
+iterations <- 10 # number of replicate projections to run (mid loop)
 
 # Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -278,7 +278,8 @@ FAMNAoutput <- numeric(length = count)
 for(iter in 1:iterations) {
   
   z <- c(sample(nrow(flowdata), burnin), 1:54) # mid loop - annual flow sequence over which fish model will run
- 
+# print(z)
+   
 # Need to read in initial biom every time so starting biomass is reset to be equal across spp and stages
   # N gives the total number of individuals for each age class.
   # Initially here, this is found by multiplying the number of g occupied by a given class
@@ -509,59 +510,59 @@ totbiom.AMNA <-
   biomAMNA[3] 
 
 ### :CLARIFY: at the moment carrying capacity is limiting spawning of all species based on the total biomass occupied at the end of the previous year. i.e. if above K, no spp spawn in that year. If spawning occurs, they can all spawn and there is no sequence, so overseeding COULD be massive.
-b <- 1/47660
+
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-FCACL2 <- ((0.5*GSI.CACL*(1-S1MortCACL))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCACL2 <- ((0.5*GSI.CACL*(1-S1MortCACL))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCACL1*(1/denCACLJ)
-FCACL3 <- ((0.5*GSI.CACL*(1-S1MortCACL))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCACL3 <- ((0.5*GSI.CACL*(1-S1MortCACL))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCACL1*(1/denCACLJ)
 
 
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
-FGIRO2 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FGIRO2 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denGIRO1*(1/denGIROJ)
-FGIRO3 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FGIRO3 <- ((0.5*GSI.GIRO*(1-S1MortGIRO))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denGIRO1*(1/denGIROJ)
 
 # POTENTIAL CAIN FECUNDITY ---------------------------------------------------------
 
-FCAIN3 <- ((0.5*GSI.CAIN*(1-S1MortCAIN))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCAIN3 <- ((0.5*GSI.CAIN*(1-S1MortCAIN))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCAIN1*(1/denCAINJ)
 
 # POTENTIAL LECY FECUNDITY ---------------------------------------------------------
-FLECY2 <- ((0.5*GSI.LECY*(1-S1MortLECY))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FLECY2 <- ((0.5*GSI.LECY*(1-S1MortLECY))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denLECY1*(1/denLECYJ)
-FLECY3 <- ((0.5*GSI.LECY*(1-S1MortLECY))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FLECY3 <- ((0.5*GSI.LECY*(1-S1MortLECY))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denLECY1*(1/denLECYJ)
 # POTENTIAL MIDO FECUNDITY ---------------------------------------------------------
 
-FMIDO3 <- ((0.5*GSI.MIDO*(1-S1MortMIDO))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FMIDO3 <- ((0.5*GSI.MIDO*(1-S1MortMIDO))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denMIDO1*(1/denMIDOJ)
 
 # POTENTIAL CYLU FECUNDITY ---------------------------------------------------------
 # because they are serial spawners, they are allowed to spawn twice a season
-FCYLUJ <- ((0.5*GSI.CYLU*(1-S1MortCYLU))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCYLUJ <- ((0.5*GSI.CYLU*(1-S1MortCYLU))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCYLU1*(1/denCYLUJ)
-FCYLU2 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCYLU2 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCYLU1*(1/denCYLUJ)
-FCYLU3 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FCYLU3 <- ((0.5*2*GSI.CYLU*(1-S1MortCYLU))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denCYLU1*(1/denCYLUJ)
 
 # POTENTIAL AMNA FECUNDITY ---------------------------------------------------------
 
-FAMNA3 <- ((0.5*GSI.AMNA*(1-S1MortAMNA))/
-             (1+(b*sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))))*
+FAMNA3 <- ((0.5*GSI.AMNA*(1-S1MortAMNA))*
+             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
   denAMNA1*(1/denAMNAJ)
 
 
@@ -1015,7 +1016,7 @@ CYLU.SE.RA <- CYLU.sd.RA/sqrt(iterations)
 CYLU.RMSE <- sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - CYLU.mean.RA)^2)) # RMSE: sqrt(mean((y-y_pred)^2))
 CYLU.NRMSE <- (sqrt(mean((Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - CYLU.mean.RA)^2)))/(max(Verde$MeanRelAbu[Verde$SppCode == "CYLU"]) - min(Verde$MeanRelAbu[Verde$SppCode == "CYLU"]))
 
-plot(Verde$Year[Verde$SppCode == "CYLU"], Verde$MeanRelAbu[Verde$SppCode == "CYLU"], ylim = c(0, 1),
+plot(Verde$Year[Verde$SppCode == "CYLU"], Verde$MeanRelAbu[Verde$SppCode == "CYLU"], ylim = c(0, 0.5),
      ylab = "Relative Abundance", main = "CYLU", xlab = "Year")
 arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - Verde$SERelAbu[Verde$SppCode == "CYLU"], 
        x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] + Verde$SERelAbu[Verde$SppCode == "CYLU"], code = 3, length = 0.1, angle = 90)
@@ -1044,22 +1045,22 @@ Model.RelAbu <- rbind(AMNA.mean.RA, CACL.mean.RA, CAIN.mean.RA, CYLU.mean.RA, GI
 
 #filter(Verde, Year == 1994)
 
-spear.cor <- c(
-cor(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spear"),
-cor(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spear"),
-cor(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spear"),
-cor(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spear"),
-cor(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spear"),
-cor(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spear"),
-cor(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spear"),
-cor(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spear"),
-cor(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spear"),
-cor(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spear"),
-cor(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spear"),
-cor(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spear"),
-cor(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spear"),
-cor(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spear"),
-cor(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spear"))
+pearson.cor <- c(
+cor(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "pearson"),
+cor(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "pearson"),
+cor(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "pearson"),
+cor(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "pearson"),
+cor(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "pearson"),
+cor(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "pearson"),
+cor(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "pearson"),
+cor(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "pearson"),
+cor(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "pearson"),
+cor(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "pearson"),
+cor(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "pearson"),
+cor(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "pearson"),
+cor(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "pearson"),
+cor(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "pearson"),
+cor(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "pearson"))
 spear <- cbind(Verde$Year[1:15], spear.cor)
 round(spear, digits = 2)
 pears <- cbind(Verde$Year[1:15], pearson.cor)
