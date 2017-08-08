@@ -22,10 +22,10 @@ flowdata <- read.csv("data/flowdata_Verde.csv")
 # BaseDur - baseflow duration in days
 # flooddate is peak dates of all floods (Oct 1 = 1)
 
-burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
-count <- burnin + length(flowdata$SpFloodMag) # inner loop - number of years to simulate; starting with natural sequence of flow record
+## burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
+count <- length(flowdata$SpFloodMag) ## + burnin # inner loop - number of years to simulate; starting with natural sequence of flow record
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
-iterations <- 10 # number of replicate projections to run (mid loop)
+iterations <- 1 # number of replicate projections to run (mid loop)
 
 # Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -44,7 +44,7 @@ for(j in 1:length(modifiers[,1])) {
 # these are raw numbers taken from survey data: max, mean and min fecundities
 # Stage specific densities (ind./g)
 
-vitalrates <- read.csv('data/vital-rates.csv')
+vitalrates <- read.csv('data/vital-rates-20Jul_wRelAbuSTART.csv')
 
 # assigning vital rate values from column 3 to 'code' in column 2
 for(k in 1:length(vitalrates[,1])) {
@@ -70,14 +70,14 @@ K = 47660 # avg. for 1-km reach across 6 replicate reaches... in g/m3 this is 15
 # Bunch of functions -----------------------------------------
 
 ### :CLARIFY: This rescue function needs to be sorted out. Is it realistic?
-# Random rescue function - calculates whether rescue occurs if less than 2 adults are present (or pop extinction occurs)
-rescue <- rbinom(1, 1, .5)
-
-# Checks to see if at least two adults are present to allow spawning
-# If there are, it carries on, if not, there's a potential for population rescue, via the above random no. generator. i.e. if rescued, 2 individuals are present, if not, 0. 
-adult_func <- function(x) { 
-    ifelse(x > 1.99999, x, 2)
-}
+# # Random rescue function - calculates whether rescue occurs if less than 2 adults are present (or pop extinction occurs)
+# #rescue <- rbinom(1, 1, .5)
+# 
+# # Checks to see if at least two adults are present to allow spawning
+# # If there are, it carries on, if not, there's a potential for population rescue, via the above random no. generator. i.e. if rescued, 2 individuals are present, if not, 0. 
+# #adult_func <- function(x) { 
+# #    ifelse(x > 1.99999, x, 2)
+# #}
 
 # # rescue with 2 adults
 # adult_res <- function(x) {
@@ -87,7 +87,7 @@ adult_func <- function(x) {
 # rescue biomass for 2 individuals based on density (indiv/g) of species
 biom_res <- function(x, spp) { # x is biom object for a given species (e.g. biomCACL), spp is name of species in quotes (e.g. "CACL")
   s.x <- x[3]
-  x[3] <- ifelse(s.x > 2*(1/get(noquote(paste0("den", spp, "3")))), s.x, 2*(1/get(noquote(paste0("den",spp,"3"))))*rbinom(1, 1, 0.25))
+  x[3] <- ifelse(s.x > 2*(1/get(noquote(paste0("den", spp, "3")))), s.x, 10*(1/get(noquote(paste0("den",spp,"3"))))*rbinom(1, 1, 1))
   print(x)
 }
 
@@ -276,9 +276,26 @@ FAMNAoutput <- numeric(length = count)
 # Mid loop ###############################################################################
 # Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
 for(iter in 1:iterations) {
-  
-  z <- c(sample(nrow(flowdata), burnin), 1:54) # mid loop - annual flow sequence over which fish model will run
+
+# USE THIS for normal flow sequence stuff ++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  #z <- c(sample(nrow(flowdata), burnin, replace = TRUE), 1:54) # mid loop - annual flow sequence over which fish model will run
 # print(z)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+  # # All 2010 SPflood + SUflood years 
+  # z <- rep(47, 84)
+  
+  # # All Spflood 1993
+  # z <- rep(30, 84)
+  
+  # # All drought Y2K
+  # z <- rep(37, 84)
+  
+  # # Nonevent 1985
+  # z <- rep(22, 84)
+  
+  # # SUflood
+  # z <- rep(21, 84)
    
 # Need to read in initial biom every time so starting biomass is reset to be equal across spp and stages
   # N gives the total number of individuals for each age class.
@@ -319,8 +336,8 @@ for(i in 1:count) {
 
 # CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS (+ BURNIN YEARS)
  #y = sample(nrow(flowdata), 1) 
- #y = i
- y = z[i] # sample burnin + 54 years
+ y = i
+ #y = z[i] # sample burnin + 54 years
 
 # y was a random number within the length of the flow data to randomly select a year from 
 # the 'flood' and 'drought' vector. now it's directly taken from flow vector. 
@@ -752,39 +769,40 @@ droughtoutput[i] <- drought[y]
 # MATRIX MULTIPLICATION ------------------------------------------------------------------
 # can include rescue function for each with 0.5 chance of reach being colonized by 2 individuals
 # CACL
-biomCACL <- ACACL %*% biomCACL #biom_res(biomCACL, "CACL") # ACACL is transition matrix, biomCACL = total biomass for each age class,
+biomCACL <- ACACL %*% biomCACL #biom_res(biomCACL, "CACL") #biomCACL  # ACACL is transition matrix, biomCACL = total biomass for each age class,
 
 # GIRO
-biomGIRO <- AGIRO %*% biomGIRO #biom_res(biomGIRO, "GIRO") # AGIRO is transition matrix, biomGIRO = total biomass for each age class
+biomGIRO <- AGIRO %*% biomGIRO #biom_res(biomGIRO, "GIRO") #biomGIRO  # AGIRO is transition matrix, biomGIRO = total biomass for each age class
 
 # LECY
-biomLECY <- ALECY %*% biomLECY #biom_res(biomLECY, "LECY") # ALECY is transition matrix, biomLECY = total biomass for each age class
+biomLECY <- ALECY %*% biomLECY  #biom_res(biomLECY, "LECY") #biomLECY  # ALECY is transition matrix, biomLECY = total biomass for each age class
 
 # CAIN
-biomCAIN <- ACAIN %*% biomCAIN #biom_res(biomCAIN, "CAIN") # ACAIN is transition matrix, biomCAIN = total biomass for each age class
+biomCAIN <- ACAIN %*% biomCAIN #biom_res(biomCAIN, "CAIN") #biomCAIN # ACAIN is transition matrix, biomCAIN = total biomass for each age class
 
 # MIDO
-biomMIDO <- AMIDO %*% biomMIDO #biom_res(biomMIDO, "MIDO") # AMIDO is transition matrix, biomMIDO = total biomass for each age class
+biomMIDO <- AMIDO %*% biomMIDO #biom_res(biomMIDO, "MIDO") #biomMIDO # AMIDO is transition matrix, biomMIDO = total biomass for each age class
 
 # CYLU
-biomCYLU <- ACYLU %*% biomCYLU #biom_res(biomCYLU, "CYLU") # ACYLU is transition matrix, biomCYLU = total biomass for each age class
+biomCYLU <- ACYLU %*% biomCYLU #biom_res(biomCYLU, "CYLU") #biomCYLU # ACYLU is transition matrix, biomCYLU = total biomass for each age class
 
 # AMNA
-biomAMNA <- AAMNA %*% biomAMNA #biom_res(biomAMNA, "AMNA") # AAMNA is transition matrix, biomAMNA = total biomass for each age class
+biomAMNA <- AAMNA %*% biomAMNA #biom_res(biomAMNA, "AMNA") #biomAMNA # AAMNA is transition matrix, biomAMNA = total biomass for each age class
 
 } # End of inner loop ####################################################################
 
 # Mean values for each iteration run over each sequence of years
-CACLrep[,iter] <- apply(CACLoutput.N[61:75, 2:3], 1, sum)
-GIROrep[,iter] <- apply(GIROoutput.N[61:75, 2:3], 1, sum)
-LECYrep[,iter] <- apply(LECYoutput.N[61:75, 2:3], 1, sum)
-CAINrep[,iter] <- apply(CAINoutput.N[61:75, 2:3], 1, sum)
-MIDOrep[,iter] <- apply(MIDOoutput.N[61:75, 2:3], 1, sum)
-CYLUrep[,iter] <- apply(CYLUoutput.N[61:75, 2:3], 1, sum)
-AMNArep[,iter] <- apply(AMNAoutput.N[61:75, 2:3], 1, sum)
+  # 31:45 if just do flowdata with no burnin. 61:75 with 30 year burnin.
+CACLrep[,iter] <- apply(CACLoutput.N[31:45, 2:3], 1, sum)
+GIROrep[,iter] <- apply(GIROoutput.N[31:45, 2:3], 1, sum)
+LECYrep[,iter] <- apply(LECYoutput.N[31:45, 2:3], 1, sum)
+CAINrep[,iter] <- apply(CAINoutput.N[31:45, 2:3], 1, sum)
+MIDOrep[,iter] <- apply(MIDOoutput.N[31:45, 2:3], 1, sum)
+CYLUrep[,iter] <- apply(CYLUoutput.N[31:45, 2:3], 1, sum)
+AMNArep[,iter] <- apply(AMNAoutput.N[31:45, 2:3], 1, sum)
 Total.N[,iter] <- apply(
-  cbind(CACLoutput.N[61:75, 2:3], GIROoutput.N[61:75, 2:3], LECYoutput.N[61:75, 2:3], CAINoutput.N[61:75, 2:3], 
-        MIDOoutput.N[61:75, 2:3], CYLUoutput.N[61:75, 2:3], AMNAoutput.N[61:75, 2:3]), 1, sum)
+  cbind(CACLoutput.N[31:45, 2:3], GIROoutput.N[31:45, 2:3], LECYoutput.N[31:45, 2:3], CAINoutput.N[31:45, 2:3], 
+        MIDOoutput.N[31:45, 2:3], CYLUoutput.N[31:45, 2:3], AMNAoutput.N[31:45, 2:3]), 1, sum)
 
 } # End of mid loop ######################################################################
 
@@ -923,10 +941,10 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N
 # Relative abundance ------------------------------------------------------------------------------
 Verde <- read.csv("data/Rel_Abu_Verde_94-08.csv", header = T)
 par(mfrow = c(3,3), mar = c(4,4,1,0), oma=c(1,0,1,1))
-plot(Verde$Year[Verde$SppCode == "CACL"], Verde$MeanRelAbu[Verde$SppCode == "CACL"], ylim = c(0, 0.5),
-     ylab = "Relative Abundance", main = "CACL", xlab = "Year")
-arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] - Verde$SERelAbu[Verde$SppCode == "CACL"], 
-       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] + Verde$SERelAbu[Verde$SppCode == "CACL"], code = 3, length = 0.1, angle = 90)
+# plot(Verde$Year[Verde$SppCode == "CACL"], Verde$MeanRelAbu[Verde$SppCode == "CACL"], ylim = c(0, 0.5),
+#      ylab = "Relative Abundance", main = "CACL", xlab = "Year")
+# arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] - Verde$SERelAbu[Verde$SppCode == "CACL"], 
+#        x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CACL"] + Verde$SERelAbu[Verde$SppCode == "CACL"], code = 3, length = 0.1, angle = 90)
 
 # CACL
 CACL.RelAbu <- CACLrep/Total.N
@@ -1066,18 +1084,54 @@ round(spear, digits = 2)
 pears <- cbind(Verde$Year[1:15], pearson.cor)
 round(pears, digits = 2)
 
+# Species level correlations
+head(Verde)
+?summarize
+?ddply
+?filter
+?apply
+Verde.spp.meanRelAbu <- aggregate(Verde$TotRelAbu, by = list(Verde$SppCode), FUN = mean)
+model.spp.meanRelAbu <- rbind(mean(AMNA.RelAbu), mean(CACL.RelAbu), mean(CAIN.RelAbu), mean(CYLU.RelAbu), mean(GIRO.RelAbu), mean(LECY.RelAbu), mean(MIDO.RelAbu))
+cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu)
 
+?spread
+?cor
+?colnames
+Verde.tot <- Verde[,-c(4,5)]
+Verde.t <- spread(Verde.tot, SppCode, TotRelAbu) 
+spp.cor <- rbind(
+cor(AMNA.RelAbu, Verde.t$AMNA,  method = "spear"),
+cor(CACL.RelAbu, Verde.t$CACL,  method = "spear"),
+cor(CAIN.RelAbu, Verde.t$CAIN,  method = "spear"),
+cor(CYLU.RelAbu, Verde.t$CYLU,  method = "spear"),
+cor(GIRO.RelAbu, Verde.t$GIRO,  method = "spear"),
+cor(LECY.RelAbu, Verde.t$LECY,  method = "spear"),
+cor(MIDO.RelAbu, Verde.t$MIDO,  method = "spear"))
+rownames(spp.cor) <- c("AMNA", "CACL", "CAIN", "CYLU", "GIRO", "LECY", "MIDO")
+spp.cor
+
+# 
 tail(AMNAoutput.N.DF)
 tail(MIDOoutput.N.DF)
 tail(LECYoutput.N.DF)
 tail(GIROoutput.N.DF)
 tail(CYLUoutput.N.DF)
+tail(CAINoutput.N.DF)
+tail(CACLoutput.N.DF)
 
-head(AMNAoutput.N.DF)
-head(MIDOoutput.N.DF)
-head(LECYoutput.N.DF)
-head(GIROoutput.N.DF)
-head(CYLUoutput.N.DF)
+mean(AMNA.lambda)
+mean(CACL.lambda)
+mean(CAIN.lambda)
+mean(CYLU.lambda)
+mean(GIRO.lambda)
+mean(LECY.lambda)
+mean(MIDO.lambda)
+
+# head(AMNAoutput.N.DF)
+# head(MIDOoutput.N.DF)
+# head(LECYoutput.N.DF)
+# head(GIROoutput.N.DF)
+# head(CYLUoutput.N.DF)
 
 
 
