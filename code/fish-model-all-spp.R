@@ -2,6 +2,7 @@
 # Jane Rogosch, Jono Tonkin, et al.
 # 01-Mar-17
 # 26-Jul-17
+# 22-Aug-17
 
 # Required libraries
 library(ggplot2)
@@ -355,18 +356,21 @@ for(i in 1:count) {
 # YOY (GCACL1) survival and recruitment depends on spring flows (Sp is modifier for stage 1, Su is modifier for stage 2&3)
     GCACL1 <- aCACL1 * denCACLJ * (1/denCACL2) *
         (1 - (SP_highflood[y] * S2MortCACL * CACL_Sp_HF)) *
+        (1 - (SU_highflood[y] * S2MortCACL * CACL_Sp_NE)) *
         (1 - (medflood[y] * S2MortCACL * CACL_Sp_MF)) *
         (1 - (nonevent[y] * S2MortCACL* CACL_Sp_NE))  *
         (1 - (drought[y] * S2MortCACL* CACL_Sp_DR)) 
          
     GCACL2 <- aCACL2 * denCACL2 * (1/denCACL3) *
         (1 - (SP_highflood[y] * S2MortCACL* CACL_Su_HF)) *
+        (1 - (SU_highflood[y] * S2MortCACL * CACL_Su_NE)) *
         (1 - (medflood[y] * S2MortCACL * CACL_Su_MF))*
         (1 - (nonevent[y] * S2MortCACL * CACL_Su_NE))  *
         (1 - (drought[y] * S2MortCACL * CACL_Su_DR))  
 
     PCACL3 <- (1 - aCACL3) *
         (1 - (SP_highflood[y] * S3MortCACL * CACL_Su_HF)) *
+        (1 - (SU_highflood[y] * S2MortCACL * CACL_Su_NE)) *
         (1 - (medflood[y] * S3MortCACL * CACL_Su_MF))  *
         (1 - (nonevent[y] * S3MortCACL * CACL_Su_NE))  *
         (1 - (drought[y] * S3MortCACL * CACL_Su_DR)) 
@@ -375,18 +379,21 @@ for(i in 1:count) {
 # Chub
      GGIRO1 <- aGIRO1 * denGIROJ * (1/denGIRO2) *
         (1 - (SP_highflood[y] * S2MortGIRO * GIRO_Sp_HF)) *
+        (1 - (SU_highflood[y] * S2MortGIRO * GIRO_Sp_NE)) *
         (1 - (medflood[y] * S2MortGIRO * GIRO_Sp_MF)) *
         (1 - (nonevent[y] * S2MortGIRO * GIRO_Sp_NE))  *
         (1 - (drought[y] * S2MortGIRO * GIRO_Sp_DR)) 
         
     GGIRO2 <- aGIRO2 * denGIRO2 * (1/denGIRO3) *
         (1 - (SP_highflood[y] * S2MortGIRO)) * GIRO_Su_HF *
+        (1 - (SU_highflood[y] * S2MortGIRO * GIRO_Su_NE)) *
         (1 - (medflood[y] * S2MortGIRO * GIRO_Su_MF)) *
         (1 - (nonevent[y] * S2MortGIRO * GIRO_Su_NE)) *
         (1 - (drought[y] * S2MortGIRO * GIRO_Su_DR)) 
 
     PGIRO3 <- (1 - aGIRO3) *
         (1 - (SP_highflood[y] * S3MortGIRO * GIRO_Su_HF)) *
+        (1 - (SU_highflood[y] * S2MortGIRO * GIRO_Su_NE)) *
         (1 - (medflood[y] * S3MortGIRO * GIRO_Su_MF)) *
         (1 - (nonevent[y] * S3MortGIRO * GIRO_Su_NE)) *
         (1 - (drought[y] * S3MortGIRO * GIRO_Su_DR))
@@ -394,39 +401,44 @@ for(i in 1:count) {
 # Sonora sucker
     GCAIN1 <- aCAIN1 * denCAINJ * (1/denCAIN2) *
       (1 - (SP_highflood[y] * S2MortCAIN * CAIN_Sp_HF)) *
+      (1 - (SU_highflood[y] * S2MortCAIN * CAIN_Sp_NE)) *
       (1 - (medflood[y] * S2MortCAIN * CAIN_Sp_MF)) *
       (1 - (nonevent[y] * S2MortCAIN * CAIN_Sp_NE)) *
       (1 - (drought[y] * S2MortCAIN * CAIN_Sp_DR))
     
     GCAIN2 <- aCAIN2 * denCAIN2 * (1/denCAIN3) *
       (1 - (SP_highflood[y] * S2MortCAIN * CAIN_Su_HF)) *
+      (1 - (SU_highflood[y] * S2MortCAIN * CAIN_Su_NE)) *
       (1 - (medflood[y] * S2MortCAIN * CAIN_Su_MF)) *
       (1 - (nonevent[y] * S2MortCAIN * CAIN_Su_NE)) *
       (1 - (drought[y] * S2MortCAIN * CAIN_Su_DR))
     
     PCAIN3 <- (1 - aCAIN3) *
       (1 - (SP_highflood[y] * S3MortCAIN * CAIN_Su_HF)) *
+      (1 - (SU_highflood[y] * S2MortCAIN * CAIN_Su_NE)) *
       (1 - (medflood[y] * S3MortCAIN * CAIN_Su_MF)) *
       (1 - (nonevent[y] * S3MortCAIN * CAIN_Su_NE)) *
       (1 - (drought[y] * S3MortCAIN * CAIN_Su_DR))
     
 # Non-natives
-    # note: in years with a spring and summer flood they get 2 x mortality
 # Green sunfish - note the "NN"
  GLECY1 <- aLECY1 * denLECYJ * (1/denLECY2) *
         (1 - (SU_highflood[y] * S2MortLECY * LECY_Sp_HF)) *
+        (1 - (SP_highflood[y] * S2MortLECY * LECY_Sp_MF)) *
         (1 - (medflood[y] * S2MortLECY * LECY_Sp_MF)) *
         (1 - (nonevent[y] * S2MortLECY * LECY_Sp_NE)) *
         (1 - (drought[y] * S2MortLECY * LECY_Sp_DR))
         
     GLECY2 <- aLECY2 * denLECY2 * (1/denLECY3) *
         (1 - (SU_highflood[y] * S2MortLECY * LECY_Su_HF)) *
+        (1 - (SP_highflood[y] * S2MortLECY * LECY_Su_MF)) *
         (1 - (medflood[y] * S2MortLECY * LECY_Su_MF)) *
         (1 - (nonevent[y] * S2MortLECY * LECY_Su_NE)) *
         (1 - (drought[y] * S2MortLECY * LECY_Su_DR))
 
     PLECY3 <- (1 - aLECY3) *
         (1 - (SU_highflood[y] * S3MortLECY * LECY_Su_HF)) *
+        (1 - (SP_highflood[y] * S2MortLECY * LECY_Su_MF)) *
         (1 - (medflood[y] * S3MortLECY * LECY_Su_MF)) *
         (1 - (nonevent[y] * S3MortLECY * LECY_Su_NE)) *
         (1 - (drought[y] * S3MortLECY * LECY_Su_DR))
@@ -434,18 +446,21 @@ for(i in 1:count) {
 # Smallmouth bass
     GMIDO1 <- aMIDO1 * denMIDOJ * (1/denMIDO2) *
       (1 - (SU_highflood[y] * S2MortMIDO * MIDO_Sp_HF)) *
+      (1 - (SP_highflood[y] * S2MortMIDO * MIDO_Sp_MF)) *
       (1 - (medflood[y] * S2MortMIDO * MIDO_Sp_MF)) *
       (1 - (nonevent[y] * S2MortMIDO * MIDO_Sp_NE)) *
       (1 - (drought[y] * S2MortMIDO * MIDO_Sp_DR))
     
     GMIDO2 <- aMIDO2 * denMIDO2 * (1/denMIDO3) *
       (1 - (SU_highflood[y] * S2MortMIDO * MIDO_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortMIDO * MIDO_Sp_MF)) *
       (1 - (medflood[y] * S2MortMIDO * MIDO_Su_MF)) *
       (1 - (nonevent[y] * S2MortMIDO * MIDO_Su_NE)) *
       (1 - (drought[y] * S2MortMIDO * MIDO_Su_DR))
     
     PMIDO3 <- (1 - aMIDO3) *
       (1 - (SU_highflood[y] * S3MortMIDO * MIDO_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortMIDO * MIDO_Sp_MF)) *
       (1 - (medflood[y] * S3MortMIDO * MIDO_Su_MF)) *
       (1 - (nonevent[y] * S3MortMIDO * MIDO_Su_NE)) *
       (1 - (drought[y] * S3MortMIDO * MIDO_Su_DR))
@@ -453,37 +468,43 @@ for(i in 1:count) {
 # Red shiner
     GCYLU1 <- aCYLU1 * denCYLUJ * (1/denCYLU2) *
       (1 - (SU_highflood[y] * S2MortCYLU * CYLU_Sp_HF)) *
+      (1 - (SP_highflood[y] * S2MortCYLU * CYLU_Sp_MF)) *
       (1 - (medflood[y] * S2MortCYLU * CYLU_Sp_MF)) *
       (1 - (nonevent[y] * S2MortCYLU * CYLU_Sp_NE)) *
       (1 - (drought[y] * S2MortCYLU * CYLU_Sp_DR))
     
     GCYLU2 <- aCYLU2 * denCYLU2 * (1/denCYLU3) *
       (1 - (SU_highflood[y] * S2MortCYLU * CYLU_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortCYLU * CYLU_Su_MF)) *
       (1 - (medflood[y] * S2MortCYLU * CYLU_Su_MF)) *
       (1 - (nonevent[y] * S2MortCYLU * CYLU_Su_NE)) *
       (1 - (drought[y] * S2MortCYLU * CYLU_Su_DR))
     
     PCYLU3 <- (1 - aCYLU3) *
       (1 - (SU_highflood[y] * S3MortCYLU * CYLU_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortCYLU * CYLU_Su_MF)) *
       (1 - (medflood[y] * S3MortCYLU * CYLU_Su_MF)) *
       (1 - (nonevent[y] * S3MortCYLU * CYLU_Su_NE)) *
       (1 - (drought[y] * S3MortCYLU * CYLU_Su_DR))
-    
+  
 # Yellow bullhead
     GAMNA1 <- aAMNA1 * denAMNAJ * (1/denAMNA2) *
       (1 - (SU_highflood[y] * S2MortAMNA * AMNA_Sp_HF)) *
+      (1 - (SP_highflood[y] * S2MortAMNA * AMNA_Sp_MF)) *
       (1 - (medflood[y] * S2MortAMNA * AMNA_Sp_MF)) *
       (1 - (nonevent[y] * S2MortAMNA * AMNA_Sp_NE)) *
       (1 - (drought[y] * S2MortAMNA * AMNA_Sp_DR))
     
     GAMNA2 <- aAMNA2 * denAMNA2 * (1/denAMNA3) *
       (1 - (SU_highflood[y] * S2MortAMNA * AMNA_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortAMNA * AMNA_Su_MF)) *
       (1 - (medflood[y] * S2MortAMNA * AMNA_Su_MF)) *
       (1 - (nonevent[y] * S2MortAMNA * AMNA_Su_NE)) *
       (1 - (drought[y] * S2MortAMNA * AMNA_Su_DR))
     
     PAMNA3 <- (1 - aAMNA3) *
       (1 - (SU_highflood[y] * S3MortAMNA * AMNA_Su_HF)) *
+      (1 - (SP_highflood[y] * S2MortAMNA * AMNA_Su_MF)) *
       (1 - (medflood[y] * S3MortAMNA * AMNA_Su_MF)) *
       (1 - (nonevent[y] * S3MortAMNA * AMNA_Su_NE)) *
       (1 - (drought[y] * S3MortAMNA * AMNA_Su_DR))
@@ -1086,29 +1107,29 @@ round(pears, digits = 2)
 
 # Species level correlations
 head(Verde)
-?summarize
-?ddply
-?filter
-?apply
+# ?summarize
+# ?ddply
+# ?filter
+# ?apply
 Verde.spp.meanRelAbu <- aggregate(Verde$TotRelAbu, by = list(Verde$SppCode), FUN = mean)
 model.spp.meanRelAbu <- rbind(mean(AMNA.RelAbu), mean(CACL.RelAbu), mean(CAIN.RelAbu), mean(CYLU.RelAbu), mean(GIRO.RelAbu), mean(LECY.RelAbu), mean(MIDO.RelAbu))
 cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu)
 
-?spread
-?cor
-?colnames
+# ?spread
+# ?cor
+# ?colnames
 Verde.tot <- Verde[,-c(4,5)]
 Verde.t <- spread(Verde.tot, SppCode, TotRelAbu) 
 spp.cor <- rbind(
-cor(AMNA.RelAbu, Verde.t$AMNA,  method = "spear"),
-cor(CACL.RelAbu, Verde.t$CACL,  method = "spear"),
-cor(CAIN.RelAbu, Verde.t$CAIN,  method = "spear"),
-cor(CYLU.RelAbu, Verde.t$CYLU,  method = "spear"),
-cor(GIRO.RelAbu, Verde.t$GIRO,  method = "spear"),
-cor(LECY.RelAbu, Verde.t$LECY,  method = "spear"),
-cor(MIDO.RelAbu, Verde.t$MIDO,  method = "spear"))
+cor(AMNA.RelAbu, Verde.t$AMNA,  method = "pearson"),
+cor(CACL.RelAbu, Verde.t$CACL,  method = "pearson"),
+cor(CAIN.RelAbu, Verde.t$CAIN,  method = "pearson"),
+cor(CYLU.RelAbu, Verde.t$CYLU,  method = "pearson"),
+cor(GIRO.RelAbu, Verde.t$GIRO,  method = "pearson"),
+cor(LECY.RelAbu, Verde.t$LECY,  method = "pearson"),
+cor(MIDO.RelAbu, Verde.t$MIDO,  method = "pearson"))
 rownames(spp.cor) <- c("AMNA", "CACL", "CAIN", "CYLU", "GIRO", "LECY", "MIDO")
-spp.cor
+round(spp.cor, digits = 2)
 
 # 
 tail(AMNAoutput.N.DF)
