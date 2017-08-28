@@ -17,6 +17,7 @@ rm(list = ls()) # clearing the workspace
 # bringing in flow data
 # Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
 flowdata <- read.csv("data/flowdata_Verde.csv") 
+
   # str(flowdata)
   # head(flowdata)
 # FloodMag - magnitude of flood in cfs
@@ -24,8 +25,8 @@ flowdata <- read.csv("data/flowdata_Verde.csv")
 # flooddate is peak dates of all floods (Oct 1 = 1)
 
 ## burnin <- 30 # number of years to discard as burn in, randomly sampled from flow record
-sim_yrs <- 18
-count <- 45 + sim_yrs#length(flowdata$SpFloodMag) ## + burnin # inner loop - number of years to simulate; starting with natural sequence of flow record
+#sim_yrs <- 18
+count <- 45 #+ sim_yrs#length(flowdata$SpFloodMag) ## + burnin # inner loop - number of years to simulate; starting with natural sequence of flow record
 # outerreps <- 1 # number of iterations for outer loop that alters drought/flood frequency 
 iterations <- 1 # number of replicate projections to run (mid loop)
 
@@ -47,7 +48,7 @@ for(j in 1:length(modifiers[,1])) {
 # these are raw numbers taken from survey data: max, mean and min fecundities
 # Stage specific densities (ind./g)
 
-vitalrates <- read.csv('data/vital-rates-20Jul_wRelAbuSTART.csv') 
+vitalrates <- read.csv('data/vital-rates.csv') 
 
 # assigning vital rate values from column 3 to 'code' in column 2
 for(k in 1:length(vitalrates[,1])) {
@@ -173,7 +174,7 @@ SU_highflood_func <- function(x) {
 }
 
 medflood_func <- function(x) {
-    ifelse(x >= medfloodcutoff & x <= SP_highfloodcutoff, 1, 0)
+    ifelse(x >= medfloodcutoff & x < SP_highfloodcutoff, 1, 0)
 }
 
 nonevent_func <- function(Spfl, BD, Sufl) {
@@ -286,8 +287,10 @@ FAMNAoutput <- numeric(length = count)
 for(iter in 1:iterations) {
 
 # USE THIS for normal flow sequence stuff ++++++++++++++++++++++++++++++++++++++++++++++++++++  
-  #z <- c(sample(nrow(flowdata), burnin, replace = TRUE), 1:54) # mid loop - annual flow sequence over which fish model will run
-# print(z)
+  # z <- c(sample(nrow(flowdata), burnin, replace = TRUE), 1:54) # mid loop - annual flow sequence over which fish model will run
+  #z <- c(1:45, sample(nrow(flowdata), sim_yrs, replace = TRUE))
+   #z <- sample(nrow(flowdata[1:54,]), count, replace = T)
+  # print(z)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  
   # # All 2010 SPflood + SUflood years 
@@ -345,7 +348,7 @@ for(i in 1:count) {
 # CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS (+ BURNIN YEARS)
  #y = sample(nrow(flowdata), 1) 
  y = i
- #y = z[i] # sample burnin + 54 years
+ #y = z[i] # all 45 years up to 2008  years# sample burnin + 54 years
 
 # y was a random number within the length of the flow data to randomly select a year from 
 # the 'flood' and 'drought' vector. now it's directly taken from flow vector. 
@@ -1120,7 +1123,7 @@ head(Verde)
 # ?apply
 Verde.spp.meanRelAbu <- aggregate(Verde$TotRelAbu, by = list(Verde$SppCode), FUN = mean)
 model.spp.meanRelAbu <- rbind(mean(AMNA.RelAbu), mean(CACL.RelAbu), mean(CAIN.RelAbu), mean(CYLU.RelAbu), mean(GIRO.RelAbu), mean(LECY.RelAbu), mean(MIDO.RelAbu))
-cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu)
+cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu, method = "spearman")
 
 # ?spread
 # ?cor
@@ -1128,13 +1131,13 @@ cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu)
 Verde.tot <- Verde[,-c(4,5)]
 Verde.t <- spread(Verde.tot, SppCode, TotRelAbu) 
 spp.cor <- rbind(
-cor(AMNA.RelAbu, Verde.t$AMNA,  method = "spearman"),
-cor(CACL.RelAbu, Verde.t$CACL,  method = "spearman"),
-cor(CAIN.RelAbu, Verde.t$CAIN,  method = "spearman"),
-cor(CYLU.RelAbu, Verde.t$CYLU,  method = "spearman"),
-cor(GIRO.RelAbu, Verde.t$GIRO,  method = "spearman"),
-cor(LECY.RelAbu, Verde.t$LECY,  method = "spearman"),
-cor(MIDO.RelAbu, Verde.t$MIDO,  method = "spearman"))
+cor(AMNA.mean.RA, Verde.t$AMNA,  method = "pearson"),
+cor(CACL.mean.RA, Verde.t$CACL,  method = "pearson"),
+cor(CAIN.mean.RA, Verde.t$CAIN,  method = "pearson"),
+cor(CYLU.mean.RA, Verde.t$CYLU,  method = "pearson"),
+cor(GIRO.mean.RA, Verde.t$GIRO,  method = "pearson"),
+cor(LECY.mean.RA, Verde.t$LECY,  method = "pearson"),
+cor(MIDO.mean.RA, Verde.t$MIDO,  method = "pearson"))
 rownames(spp.cor) <- c("AMNA", "CACL", "CAIN", "CYLU", "GIRO", "LECY", "MIDO")
 round(spp.cor, digits = 2)
 
@@ -1160,6 +1163,3 @@ mean(MIDO.lambda)
 # head(LECYoutput.N.DF)
 # head(GIROoutput.N.DF)
 # head(CYLUoutput.N.DF)
-
-
-
