@@ -954,6 +954,32 @@ points(Verde$Year[Verde$SppCode == "CYLU"], Verde$MeanRelAbu[Verde$SppCode == "C
 arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - 2*Verde$SERelAbu[Verde$SppCode == "CYLU"], 
        x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] + 2*Verde$SERelAbu[Verde$SppCode == "CYLU"], code = 3, length = 0.1, angle = 90, lwd = 2)
 
+str(GIROrep)
+library(plyr)
+library(dplyr)
+test <- adply(GIROrep, c(1,2,3))
+names(test) <- c('year', 'stage', 'rep', 'abund')
+str(test)
+head(test)
+tail(test)
+
+str(total.N)
+
+test %>%
+    group_by(year, stage)
+
+x$mean = apply(GIROrep[,2:3,], 1, mean)
+x$sd = apply(GIROrep[,2:3,], 1, sd)
+x$se = x$se/sqrt(iterations)
+
+str(GIROrep)
+head(GIROrep)
+str(GIRO_RA)
+head(GIRO_RA)
+GIRO_RA <- apply(GIROrep[,2:3,], c(1,3), sum)/Total.N # check: Total.N[1,,10] = 594.689
+GIRO_RelAbu <- apply(GIRO_RA, 1, mean)
+GIRO_RA_sd <- apply(GIRO_RA, 1, sd)
+GIRO_RA_SE <- GIRO_RA_sd/sqrt(iterations)
 
 # GIRO
 GIRO_mean_run <- apply(GIROrep[,2:3,], 1, mean)
@@ -982,7 +1008,7 @@ plot(years, LECY_stage3, ylim = c(0, 70), xlab = NA, ylab = NA,
      type = "o", pch = 19, lwd = 2, cex = 1.5, col = "blue")
 lines(years, LECY_stage1, type = "o", pch = 19, lwd = 2, cex = 1.5, col = "red")
 lines(years, LECY_stage2, type = "o", pch = 19, lwd =2, cex = 1.5, col = "green3")
-legend(locator(1), legend = c("S1", "S2", "S3"), pch = 19, col = c("red", "green3", "blue"), xpd = NA)
+#legend(locator(1), legend = c("S1", "S2", "S3"), pch = 19, col = c("red", "green3", "blue"), xpd = NA)
 
 LECY_mean_run <- apply(LECYrep[,2:3,], 1, mean)
 LECY_sd_run <- apply(LECYrep[,2:3,], 1, sd)
