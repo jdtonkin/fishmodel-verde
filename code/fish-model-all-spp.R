@@ -8,6 +8,7 @@
 # Required libraries
 library(ggplot2)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(popbio)
 
@@ -879,6 +880,87 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N
 # Plot summary from all iterations of model run and compare to relative abundance from observed surveys
 #---------------------------------------------------------------------------------------------------------
 Verde <- read.csv("data/Rel_Abu_Verde_94-08.csv", header = T) 
+head(Verde)
+
+observed <- Verde[, c(1,2,4,5)]
+head(observed)
+names(observed) <- c('year', 'species', 'obs.mean.rel.abund', 'obs.se.rel.abund')
+str(observed)
+observed$year <- as.numeric(as.character(observed$year))
+
+replist <- list(AMNA = AMNArep,
+                CACL = CACLrep,
+                CAIN = CAINrep,
+                CYLU = CYLUrep,
+                GIRO = GIROrep,
+                LECY = LECYrep,
+                MIDO = MIDOrep)
+
+repdf <- ldply(replist, function(x) {
+    adply(x, c(1,2,3))
+})
+head(repdf)
+str(repdf)
+
+names(repdf) <- c('species', 'year', 'stage', 'rep', 'abund')
+repdf <- filter(repdf, stage != 'S1')
+repdf$year <- as.numeric(as.character(repdf$year))
+str(repdf)
+head(repdf)
+tail(repdf)
+
+str(Total.N)
+totn <- adply(Total.N, c(1,2))
+names(totn) <- c('year', 'rep', 'tot.abund')
+totn$year <- as.numeric(as.character(totn$year))
+str(totn)
+head(totn)
+
+repdf <- left_join(totn, repdf)
+str(repdf)
+head(repdf)
+
+repdf <- mutate(repdf, rel.abund = abund/tot.abund)
+
+
+means <- repdf %>%
+    select(-tot.abund) %>%
+    group_by(year, rep, species) %>%
+    summarise(abund = sum(abund),
+              rel.abund = sum(rel.abund)) %>%
+    group_by(species, year) %>%
+    summarise(mean.abund = mean(abund),
+              sd.abund = sd(abund),
+              se.abund = sd(abund)/sqrt(iterations),
+              mean.rel.abund = mean(rel.abund),
+              sd.rel.abund = sd(rel.abund),
+              se.rel.abund = sd(rel.abund)/sqrt(iterations))
+means
+
+mean_end <- filter(means, year >= 1994)
+
+mean_end <- left_join(mean_end, observed)
+
+theme_classic_facet <- function() {
+    theme_classic() +
+        theme(strip.background = element_rect(colour = NA, fill = NA))
+}
+
+rel.abund.trends <- ggplot(mean_end, aes(year, mean.rel.abund, colour = species, fill = species)) +
+    geom_ribbon(aes(ymin = mean.rel.abund - 2*se.rel.abund, ymax = mean.rel.abund + 2*se.rel.abund), colour = 'transparent', alpha = .5, show.legend = FALSE) +
+    geom_line(show.legend = FALSE) +
+    facet_wrap(~species, ncol = 2) +
+    theme_classic_facet() +
+    coord_cartesian(ylim = c(0,1)) +
+    ylab('Relative abundance') +
+    xlab('Year')
+
+rel.abund.trends +
+    geom_pointrange(aes(y = obs.mean.rel.abund, ymin = obs.mean.rel.abund - 2*obs.se.rel.abund, ymax = obs.mean.rel.abund + 2*obs.se.rel.abund), size = .1, show.legend = FALSE)
+
+ggsave('export/multi-spp.pdf', width = 4, height = 6)
+
+
 
 #par(mfrow=c(4,2), mar = c(4,3,2,1)+ 0.1, oma = c(0,0,0,0))
 par(mfrow=c(1,1), mar = c(5,4,4,2), oma=c(0,0,0,0))
@@ -954,32 +1036,6 @@ points(Verde$Year[Verde$SppCode == "CYLU"], Verde$MeanRelAbu[Verde$SppCode == "C
 arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] - 2*Verde$SERelAbu[Verde$SppCode == "CYLU"], 
        x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "CYLU"] + 2*Verde$SERelAbu[Verde$SppCode == "CYLU"], code = 3, length = 0.1, angle = 90, lwd = 2)
 
-str(GIROrep)
-library(plyr)
-library(dplyr)
-test <- adply(GIROrep, c(1,2,3))
-names(test) <- c('year', 'stage', 'rep', 'abund')
-str(test)
-head(test)
-tail(test)
-
-str(total.N)
-
-test %>%
-    group_by(year, stage)
-
-x$mean = apply(GIROrep[,2:3,], 1, mean)
-x$sd = apply(GIROrep[,2:3,], 1, sd)
-x$se = x$se/sqrt(iterations)
-
-str(GIROrep)
-head(GIROrep)
-str(GIRO_RA)
-head(GIRO_RA)
-GIRO_RA <- apply(GIROrep[,2:3,], c(1,3), sum)/Total.N # check: Total.N[1,,10] = 594.689
-GIRO_RelAbu <- apply(GIRO_RA, 1, mean)
-GIRO_RA_sd <- apply(GIRO_RA, 1, sd)
-GIRO_RA_SE <- GIRO_RA_sd/sqrt(iterations)
 
 # GIRO
 GIRO_mean_run <- apply(GIROrep[,2:3,], 1, mean)
