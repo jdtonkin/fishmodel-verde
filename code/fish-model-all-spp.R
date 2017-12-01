@@ -751,258 +751,67 @@ Total.N[,iter] <- apply(
 # OUTPUTS --------------------------------------------------------------------------------
 # ########################################################################################
 
-# Plot last iteration of model run ----------------------------------------------------
+## FINAL iteration data to examine plots ---------------------------------------
+## Compiling abundance and biomass outputs into single dfs ----------------------------------------------------
 
-## Biomass
-
+## vector of species names
 sppnames <- c('CACL', 'GIRO', 'LECY', 'CAIN', 'MIDO', 'CYLU', 'AMNA')
-biomn <- c('biom', 'N')
-gn <- c('g', 'N')
 
-length(sppnames)
+## Function to make longform dataframes of biomass and abundance  
+make.dat <- function(spec, biomN){
 
-dfdf <- expand.grid(sppnames, biomn) %>%
-    rename(sppname = Var1, biomN = Var2) %>%
-    mutate(gN = ifelse(biomN == 'biom', 'g', 'N')) %>%
-    unite(datname, sppname, biomN, sep = 'output.', remove = FALSE) %>%
-    mutate(dfname = paste0(datname, '.DF'))
-dfdf
-
-
-
-for (i in 1:length(dfdf[,1])) {
-
-    datname <- get(dfdf$datname[i])
-    gn <- dfdf$gN[i]
-    sppname <- dfdf$sppname[i]
-    
-    dat <- as.data.frame(datname) %>%
-        rename(S1 = V1, S2 = V2, S3 = V3) %>%
-        mutate(rep = row.names(.)) %>%
-        gather_(stage, as.name(gn), -rep) %>%
-        mutate(spp = sppname) 
-
-    #rename_(dat, .dots = setNames(gn, "val"))
-    #rename(dat, gn, val) #### HERE #####
-    
-    #    do.call(rename_, c(list(quote(dat)), list(setNames(gn, "var"))))
-     #rename_(dat, .dots = setNames(gn, "val")) 
-    assign(dfdf$dfname[i], dat)
-}
-
-head(LECYoutput.biom.DF)
-head(LECYoutput.N.DF)
-
-
-
-
-
-
-
-
-for (i in 1:length(sppnames)) {
-
-    datname <- get(paste0(sppnames[i], 'output.biom'))
-    dfname <- paste0(sppnames[i], 'output.biom.DF')
-
-    
-    dat <- as.data.frame(datname) %>%
-        rename(S1 = V1, S2 = V2, S3 = V3) %>%
-        mutate(rep = row.names(.)) %>%
-        gather(stage, g, -rep) %>%
-        mutate(spp = sppnames[i]) 
-    
-    assign(dfname, dat)
-}
-
-
-
-dflist <- list()
-
-    for (i in sppnames) {
-
-
-        datname <- get(paste0(i, 'output.biom'))
+    datname <- get(paste0(spec, 'output.', biomN))
         
         dat <- as.data.frame(datname) %>%
             rename(S1 = V1, S2 = V2, S3 = V3) %>%
             mutate(rep = row.names(.)) %>%
-            gather(stage, g, -rep) %>%
-            mutate(spp = i)
+            gather(stage, val, -rep) %>%
+            mutate(spp = spec)            
 
-        dflist[[i]] <- dat
+        return(dat)
+}
 
-         do.call('rbind', dflist)
+## make a list to fill in
+biomdflist <- list()
+rm(biomdflist)
+## loop to fill list with longform dfs
+for(i in sppnames) {
+    biomdflist[[i]] <- make.dat(spec = i, biomN = 'biom')
+}
 
-    }
-
-lapply(dflist, head)
+test <- ldply(sppnames, function(x) make.dat(x, biomN = 'biom')) %>%
+    rename(g = val) 
 head(test)
-str(test)
-test
-
-head(LECYoutput.biom.DF)
-head(CACLoutput.biom.DF)
-head(GIROoutput.biom.DF)
-head(AMNAoutput.biom.DF)
-
-head(LECYoutput.N.DF)
+tail(test)
 
 
 
-compile.df <- function(spec, biomN, gN){
+## convert to df while also changing 'val' to 'g' for col title
+ALLoutput.biom.DF <- ldply(biomdflist, function(x) rename(x, g = val)) %>%
+    select(-`.id`)
+head(ALLoutput.biom.DF)
 
-    datname <- get(paste0(spec, 'output.', biomN))
-    dfname <- paste0(spec, 'output.', biomN, '.DF')
+## same for abundance
+ndflist <- list()
 
-    
-    dat <- as.data.frame(datname) %>%
-        rename(S1 = V1, S2 = V2, S3 = V3) %>%
-        mutate(rep = row.names(.)) %>%
-        gather(stage, gN, -rep) %>%
-        mutate(spp = sppname) 
-    
-    assign(dfname, dat)
+for(i in sppnames) {
+    ndflist[[i]] <- make.dat(spec = i, biomN = 'N')
 }
 
+ALLoutput.N.DF <- ldply(ndflist, function(x) rename(x, N = val)) %>%
+    select(-`.id`)
+head(ALLoutput.N.DF)
+
+lapply(biomdflist, head)
+lapply(test, head)
+
+lapply(biomdflist, str)
+
+lapply(ndflist, head)
 
 
-for(i in 1:length(sppnames)){
-
-    compile.df(spec = sppnames[i], biomN = 'biom', gN = 'g')
-
-}
-
-
-
-
-
-
-
-
-
-compile.biomN.df <- function(spec, biomN, gN) {
-
-    nam <- paste0(spec, 'output.', biomN)
-
-    dat <- as.data.frame(nam) %>%
-                                        #rename(S1 = V1, S2 = V2, S3 = V3) %>%
-        mutate(rep = row.names(.)) %>%
-        gather(stage, gN, -rep) %>%
-        mutate(spp = spec)
-    return(nam)
-
-    assign(paste0(nam, '.DF'), dat)
-    }
-
-    
-compile.biomN.df('LECY', 'biom', 'g')
-
-
-
-
-
-
-
-
-
-
-
-
-CACLoutput.biom.DF <- as.data.frame(CACLoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'CACL') 
-
-GIROoutput.biom.DF <- as.data.frame(GIROoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'GIRO')
-str(GIROoutput.biom.DF)
-
-LECYoutput.biom.DF <- as.data.frame(LECYoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'LECY')
-
-CAINoutput.biom.DF <- as.data.frame(CAINoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'CAIN')
-
-MIDOoutput.biom.DF <- as.data.frame(MIDOoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'MIDO')
-
-CYLUoutput.biom.DF <- as.data.frame(CYLUoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'CYLU')
-
-AMNAoutput.biom.DF <- as.data.frame(AMNAoutput.biom) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, g, -rep) %>%
-  mutate(spp = 'AMNA')
-
-
-
-## Abundance
-
-CACLoutput.N.DF <- as.data.frame(CACLoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CACL')
-
-GIROoutput.N.DF <- as.data.frame(GIROoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'GIRO')
-
-LECYoutput.N.DF <- as.data.frame(LECYoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'LECY')
-
-CAINoutput.N.DF <- as.data.frame(CAINoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CAIN')
-
-MIDOoutput.N.DF <- as.data.frame(MIDOoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'MIDO')
-
-CYLUoutput.N.DF <- as.data.frame(CYLUoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CYLU')
-
-AMNAoutput.N.DF <- as.data.frame(AMNAoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'AMNA')
-
-ALLoutput.N.DF <- rbind(CACLoutput.N.DF, GIROoutput.N.DF, LECYoutput.N.DF, CAINoutput.N.DF, MIDOoutput.N.DF, CYLUoutput.N.DF, AMNAoutput.N.DF)  
-
-ALLoutput.biom.DF <- rbind(CACLoutput.biom.DF, GIROoutput.biom.DF, LECYoutput.biom.DF, CAINoutput.biom.DF, MIDOoutput.biom.DF, CYLUoutput.biom.DF, AMNAoutput.biom.DF)
-
-
+as.data.frame(cbind(bdf = ALLoutput.biom.DF$g, test = test$g)) %>%
+    mutate(bdf-test)
 
 # Graph biomass
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
@@ -1022,7 +831,11 @@ ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) +
 # ggplot(flowdata, aes(Year, BaseDur)) +
 #     geom_point() + geom_path()
 
-flowresults <- as.data.frame(cbind(SPhighfloodoutput, SUhighfloodoutput, medfloodoutput, noneventoutput, droughtoutput)) %>%
+flowresults <- as.data.frame(cbind(SPhighfloodoutput,
+                                   SUhighfloodoutput,
+                                   medfloodoutput,
+                                   noneventoutput,
+                                   droughtoutput)) %>%
   mutate(rep = as.numeric(row.names(.))) %>%
   gather(metric, value, -rep)
 
@@ -1039,10 +852,13 @@ ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
 ggplot(ALLoutput.N.DF, aes(as.numeric(rep), N, colour = stage)) + # [ALLoutput.N.DF$spp != "CYLU",]
   geom_point() +
   geom_path() +
-  facet_grid(~spp)
+    facet_grid(~spp)
+
+
 #---------------------------------------------------------------------------------------------------------
 # Plot summary from all iterations of model run and compare to relative abundance from observed surveys
 #---------------------------------------------------------------------------------------------------------
+## Reading in observed field data
 Verde <- read.csv("data/Rel_Abu_Verde_94-08.csv", header = T) 
 head(Verde)
 
