@@ -7,21 +7,23 @@
 
 # Required libraries
 library(ggplot2)
-library(tidyr)
 library(plyr)
-library(dplyr)
+library(tidyverse)
 library(popbio)
 
 # SETUP ----------------------------------------------------------------------------------
 
 rm(list = ls()) # clearing the workspace 
 
+
+
+
 # bringing in flow data
 # Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
 flowdata <- read.csv("data/flowdata_Verde.csv") 
 
-  # str(flowdata)
-  # head(flowdata)
+# str(flowdata)
+# head(flowdata)
 # FloodMag - magnitude of flood in cfs
 # BaseDur - baseflow duration in days
 # flooddate is peak dates of all floods (Oct 1 = 1) because using water year
@@ -55,13 +57,13 @@ for(k in 1:length(vitalrates[,1])) {
 }
 
 # Key ------------------------------------------------------------
-# CACL: desert sucker
-# GIRO: chub
-# LECY: green sunfish
-# CAIN: sonora sucker
-# MIDO: smallmouth bass
-# CYLU: red shiner
-# AMNA: yellow bullhead
+## CACL (Catostomus clarki) – desert sucker 
+## GIRO (Gila robusta) – roundtail chub
+## LECY (Lepomis cyanellus) – green sunfish
+## CAIN (Catostomus insignis) – sonora sucker
+## MIDO (Micropterus dolomieu) - smallmouth bass
+## CYLU (Cyprinella lutrensis) – red shiner
+## AMNA (Ameiurus natalis) – yellow bullhead
 
 # Average total volume of water per 100 m reach in m3: 307
 # Average total fish biomass per 100 m reach in g: 4766
@@ -441,51 +443,51 @@ for(i in 1:count) {
  
 # Total grams occupied after year -----------------------------------------------
 
-totbiom.CACL <- 
-    biomCACL[1] + #
-    biomCACL[2] + 
-    biomCACL[3] 
+    totbiom.CACL <- 
+        biomCACL[1] + #
+        biomCACL[2] + 
+        biomCACL[3] 
 
-totbiom.GIRO <- 
-    biomGIRO[1] + #
-    biomGIRO[2] + 
-    biomGIRO[3] 
+    totbiom.GIRO <- 
+        biomGIRO[1] + #
+        biomGIRO[2] + 
+        biomGIRO[3] 
 
-totbiom.LECY <- 
-    biomLECY[1] + #
-    biomLECY[2] + 
-    biomLECY[3] 
+    totbiom.LECY <- 
+        biomLECY[1] + #
+        biomLECY[2] + 
+        biomLECY[3] 
 
-totbiom.CAIN <- 
-  biomCAIN[1] + #
-  biomCAIN[2] + 
-  biomCAIN[3] 
+    totbiom.CAIN <- 
+        biomCAIN[1] + #
+        biomCAIN[2] + 
+        biomCAIN[3] 
 
-totbiom.MIDO <- 
-  biomMIDO[1] + #
-  biomMIDO[2] + 
-  biomMIDO[3] 
+    totbiom.MIDO <- 
+        biomMIDO[1] + #
+        biomMIDO[2] + 
+        biomMIDO[3] 
 
-totbiom.CYLU <- 
-  biomCYLU[1] + #
-  biomCYLU[2] + 
-  biomCYLU[3] 
+    totbiom.CYLU <- 
+        biomCYLU[1] + #
+        biomCYLU[2] + 
+        biomCYLU[3] 
 
-totbiom.AMNA <- 
-  biomAMNA[1] + #
-  biomAMNA[2] + 
-  biomAMNA[3] 
+    totbiom.AMNA <- 
+        biomAMNA[1] + #
+        biomAMNA[2] + 
+        biomAMNA[3] 
 
 ### Carrying capacity (K) is limiting spawning of all species based on the total biomass occupied at the end of the previous year. 
 # i.e. if above K, no spp spawn in that year. If spawning occurs, they all spawn.
 
 # POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-FCACL2 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
-             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-  denCACL1*(1/denCACLJ)
-FCACL3 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
-             checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-  denCACL1*(1/denCACLJ)
+    FCACL2 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
+               checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
+        denCACL1*(1/denCACLJ)
+    FCACL3 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
+               checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
+        denCACL1*(1/denCACLJ)
 
 
 # POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
@@ -750,40 +752,180 @@ Total.N[,iter] <- apply(
 # ########################################################################################
 
 # Plot last iteration of model run ----------------------------------------------------
+
+## Biomass
+
+sppnames <- c('CACL', 'GIRO', 'LECY', 'CAIN', 'MIDO', 'CYLU', 'AMNA')
+biomn <- c('biom', 'N')
+gn <- c('g', 'N')
+
+length(sppnames)
+
+dfdf <- expand.grid(sppnames, biomn) %>%
+    rename(sppname = Var1, biomN = Var2) %>%
+    mutate(gN = ifelse(biomN == 'biom', 'g', 'N')) %>%
+    unite(datname, sppname, biomN, sep = 'output.', remove = FALSE) %>%
+    mutate(dfname = paste0(datname, '.DF'))
+dfdf
+
+
+
+for (i in 1:length(dfdf[,1])) {
+
+    datname <- get(dfdf$datname[i])
+    gn <- dfdf$gN[i]
+    sppname <- dfdf$sppname[i]
+    
+    dat <- as.data.frame(datname) %>%
+        rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather_(stage, as.name(gn), -rep) %>%
+        mutate(spp = sppname) 
+
+    #rename_(dat, .dots = setNames(gn, "val"))
+    #rename(dat, gn, val) #### HERE #####
+    
+    #    do.call(rename_, c(list(quote(dat)), list(setNames(gn, "var"))))
+     #rename_(dat, .dots = setNames(gn, "val")) 
+    assign(dfdf$dfname[i], dat)
+}
+
+head(LECYoutput.biom.DF)
+head(LECYoutput.N.DF)
+
+
+
+
+
+
+
+
+for (i in 1:length(sppnames)) {
+
+    datname <- get(paste0(sppnames[i], 'output.biom'))
+    dfname <- paste0(sppnames[i], 'output.biom.DF')
+
+    
+    dat <- as.data.frame(datname) %>%
+        rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather(stage, g, -rep) %>%
+        mutate(spp = sppnames[i]) 
+    
+    assign(dfname, dat)
+}
+
+
+
+dflist <- list()
+
+    for (i in sppnames) {
+
+
+        datname <- get(paste0(i, 'output.biom'))
+        
+        dat <- as.data.frame(datname) %>%
+            rename(S1 = V1, S2 = V2, S3 = V3) %>%
+            mutate(rep = row.names(.)) %>%
+            gather(stage, g, -rep) %>%
+            mutate(spp = i)
+
+        dflist[[i]] <- dat
+
+         do.call('rbind', dflist)
+
+    }
+
+lapply(dflist, head)
+head(test)
+str(test)
+test
+
+head(LECYoutput.biom.DF)
+head(CACLoutput.biom.DF)
+head(GIROoutput.biom.DF)
+head(AMNAoutput.biom.DF)
+
+head(LECYoutput.N.DF)
+
+
+
+compile.df <- function(spec, biomN, gN){
+
+    datname <- get(paste0(spec, 'output.', biomN))
+    dfname <- paste0(spec, 'output.', biomN, '.DF')
+
+    
+    dat <- as.data.frame(datname) %>%
+        rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather(stage, gN, -rep) %>%
+        mutate(spp = sppname) 
+    
+    assign(dfname, dat)
+}
+
+
+
+for(i in 1:length(sppnames)){
+
+    compile.df(spec = sppnames[i], biomN = 'biom', gN = 'g')
+
+}
+
+
+
+
+
+
+
+
+
+compile.biomN.df <- function(spec, biomN, gN) {
+
+    nam <- paste0(spec, 'output.', biomN)
+
+    dat <- as.data.frame(nam) %>%
+                                        #rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather(stage, gN, -rep) %>%
+        mutate(spp = spec)
+    return(nam)
+
+    assign(paste0(nam, '.DF'), dat)
+    }
+
+    
+compile.biomN.df('LECY', 'biom', 'g')
+
+
+
+
+
+
+
+
+
+
+
+
 CACLoutput.biom.DF <- as.data.frame(CACLoutput.biom) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
   mutate(rep = row.names(.)) %>%
   gather(stage, g, -rep) %>%
   mutate(spp = 'CACL') 
 
-CACLoutput.N.DF <- as.data.frame(CACLoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CACL')
-
 GIROoutput.biom.DF <- as.data.frame(GIROoutput.biom) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
   mutate(rep = row.names(.)) %>%
   gather(stage, g, -rep) %>%
   mutate(spp = 'GIRO')
-
-GIROoutput.N.DF <- as.data.frame(GIROoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'GIRO')
+str(GIROoutput.biom.DF)
 
 LECYoutput.biom.DF <- as.data.frame(LECYoutput.biom) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
   mutate(rep = row.names(.)) %>%
   gather(stage, g, -rep) %>%
-  mutate(spp = 'LECY')
-
-LECYoutput.N.DF <- as.data.frame(LECYoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
   mutate(spp = 'LECY')
 
 CAINoutput.biom.DF <- as.data.frame(CAINoutput.biom) %>%
@@ -792,22 +934,10 @@ CAINoutput.biom.DF <- as.data.frame(CAINoutput.biom) %>%
   gather(stage, g, -rep) %>%
   mutate(spp = 'CAIN')
 
-CAINoutput.N.DF <- as.data.frame(CAINoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CAIN')
-
 MIDOoutput.biom.DF <- as.data.frame(MIDOoutput.biom) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
   mutate(rep = row.names(.)) %>%
   gather(stage, g, -rep) %>%
-  mutate(spp = 'MIDO')
-
-MIDOoutput.N.DF <- as.data.frame(MIDOoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
   mutate(spp = 'MIDO')
 
 CYLUoutput.biom.DF <- as.data.frame(CYLUoutput.biom) %>%
@@ -816,17 +946,51 @@ CYLUoutput.biom.DF <- as.data.frame(CYLUoutput.biom) %>%
   gather(stage, g, -rep) %>%
   mutate(spp = 'CYLU')
 
-CYLUoutput.N.DF <- as.data.frame(CYLUoutput.N) %>%
-  rename(S1 = V1, S2 = V2, S3 = V3) %>%
-  mutate(rep = row.names(.)) %>%
-  gather(stage, N, -rep) %>%
-  mutate(spp = 'CYLU')
-
 AMNAoutput.biom.DF <- as.data.frame(AMNAoutput.biom) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
   mutate(rep = row.names(.)) %>%
   gather(stage, g, -rep) %>%
   mutate(spp = 'AMNA')
+
+
+
+## Abundance
+
+CACLoutput.N.DF <- as.data.frame(CACLoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'CACL')
+
+GIROoutput.N.DF <- as.data.frame(GIROoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'GIRO')
+
+LECYoutput.N.DF <- as.data.frame(LECYoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'LECY')
+
+CAINoutput.N.DF <- as.data.frame(CAINoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'CAIN')
+
+MIDOoutput.N.DF <- as.data.frame(MIDOoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'MIDO')
+
+CYLUoutput.N.DF <- as.data.frame(CYLUoutput.N) %>%
+  rename(S1 = V1, S2 = V2, S3 = V3) %>%
+  mutate(rep = row.names(.)) %>%
+  gather(stage, N, -rep) %>%
+  mutate(spp = 'CYLU')
 
 AMNAoutput.N.DF <- as.data.frame(AMNAoutput.N) %>%
   rename(S1 = V1, S2 = V2, S3 = V3) %>%
