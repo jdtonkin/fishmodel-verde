@@ -76,9 +76,9 @@ sppnames <- c('CACL', 'GIRO', 'LECY', 'CAIN', 'MIDO', 'CYLU', 'AMNA')
 K = 47660 # mean for 1-km reach across 6 replicate reaches
 
 ## Bunch of functions -----------------------------------------
-=====================
-XXXXX - add all these to source file and read in using 'source(functions)'
-=====================
+## =====================
+## XXXXX - add all these to source file and read in using 'source(functions)'
+## =====================
 
 ## checkpos makes sure that the K-occupied term is positive, assigns 0 if not
 checkpos <- function(x) {
@@ -148,13 +148,13 @@ stages <- as.character(c("S1", "S2", "S3"))
 ## AMNArep <- array(0, dim = c(54, 3, iterations), dimnames = list(years, stages, 1:iterations))  
 Total.N <- array(0, dim = c(54, iterations), dimnames = list(years, 1:iterations))
 
-=== replace total.n with a df instead. redo stuff following too. 
+## === replace total.n with a df instead. redo stuff following too. 
 str(Total.N)
 #### HERE -- need to replace the stuff below - e.g. caclrep etc.
-========================
-========================
-the following replaces the commented out region above
-========================
+## ========================
+## ========================
+## the following replaces the commented out region above
+## ========================
 
 ## Creating a list of 7 arrays to fill in. One for each spp. 
 ## Create an array to be repeated
@@ -171,9 +171,9 @@ names(replist) <- sppnames
 
 ## Output of biomass and no. ind. for each age class for each year projected  
 ## An array with 3 columns (each stage class) and however many rows there are years projected 
-=====================
-need to replace all teh stuff below in the remaining code
-=====================
+## =====================
+## need to replace all teh stuff below in the remaining code
+## =====================
 ## CACLoutput.N <- array(0, dim = c(count, 3))
 ## GIROoutput.N <- array(0, dim = c(count, 3))
 ## LECYoutput.N <- array(0, dim = c(count, 3))
@@ -191,7 +191,6 @@ output.N.list <- rep(list(output.N.array), 7)
 
 ## Assigning names to each array from sppnames vector
 names(output.N.list) <- sppnames
-==== done above
 
 
 
@@ -206,9 +205,6 @@ names(output.N.list) <- sppnames
 ## Create a df to fill in w/ lambda values
 lambda.df <- data.frame(matrix(ncol = 7, nrow = count))
 names(lambda.df) <- sppnames
-=== done above
-
-=== HERE - need to replace this stuff below
 
 ## Biomass 
 ## CYLUoutput.biom <- array(0, dim = c(count, 3))
@@ -322,33 +318,19 @@ for(iter in 1:iterations) {
     ##   from mean and variance in abundance across seven sites in Verde River from 94-08, and scaled to biomass from Gibson 2012 survey 
     ##   in file "Rinne Verde River Data 1994-2008-.xlsx"
     
-    biomCACL <- c(biomCACL1,
-                  biomCACL2,
-                  rnbinom(1, size = 1.52, mu = 5284)) 
+    biomCACL <- c(biomCACL1, biomCACL2, rnbinom(1, size = 1.52, mu = 5284)) 
     
-    biomGIRO <- c(biomGIRO1,
-                  biomGIRO2,
-                  rnbinom(1, 0.44, mu = 2376)) 
+    biomGIRO <- c(biomGIRO1, biomGIRO2, rnbinom(1, 0.44, mu = 2376)) 
     
-    biomLECY <- c(biomLECY1,
-                  biomLECY2,
-                  rnbinom(1, 0.34, mu = 164)) 
+    biomLECY <- c(biomLECY1, biomLECY2, rnbinom(1, 0.34, mu = 164)) 
     
-    biomCAIN <- c(biomCAIN1,
-                  biomCAIN2,
-                  rnbinom(1, 1.33, mu = 34068)) 
+    biomCAIN <- c(biomCAIN1, biomCAIN2, rnbinom(1, 1.33, mu = 34068)) 
     
-    biomMIDO <- c(biomMIDO1,
-                  biomMIDO2,
-                  rnbinom(1, 0.66, mu = 4202)) 
+    biomMIDO <- c(biomMIDO1, biomMIDO2, rnbinom(1, 0.66, mu = 4202)) 
     
-    biomCYLU <- c(biomCYLU1,
-                  biomCYLU2,
-                  rnbinom(1, 1.78, mu = 238)) 
+    biomCYLU <- c(biomCYLU1, biomCYLU2, rnbinom(1, 1.78, mu = 238)) 
     
-    biomAMNA <- c(biomAMNA1,
-                  biomAMNA2,
-                  rnbinom(1, 0.36, mu = 1306))
+    biomAMNA <- c(biomAMNA1, biomAMNA2, rnbinom(1, 0.36, mu = 1306))
     
     ## Inner loop #############################################################################
     for(i in 1:count) {
@@ -367,299 +349,351 @@ for(iter in 1:iterations) {
         ## Natives
         ## Desert Sucker - 
         ## YOY (GCACL1) survival and recruitment depends on spring flows (J is modifier for stage 1, A is modifier for stage 2&3)
-        GCACL1 <- aCACL1 * denCACLJ * (1/denCACL2) *
-            (1 - (SP_highflood[y] * STMortCACL * CACL_J_HF)) *
-            (1 - (SU_highflood[y] * STMortCACL * CACL_J_NE)) *
-            (1 - (medflood[y] * STMortCACL * CACL_J_MF)) *
-            (1 - (nonevent[y] * STMortCACL* CACL_J_NE))  *
-            (1 - (drought[y] * STMortCACL* CACL_J_DR)) 
+        ## GCACL1 <- aCACL1 * denCACLJ * (1/denCACL2) *
+        ##     (1 - (SP_highflood[y] * STMortCACL * CACL_J_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCACL * CACL_J_NE)) *
+        ##     (1 - (medflood[y] * STMortCACL * CACL_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortCACL* CACL_J_NE))  *
+        ##     (1 - (drought[y] * STMortCACL* CACL_J_DR)) 
         
-        GCACL2 <- aCACL2 * denCACL2 * (1/denCACL3) *
-            (1 - (SP_highflood[y] * STMortCACL* CACL_A_HF)) *
-            (1 - (SU_highflood[y] * STMortCACL * CACL_A_NE)) *
-            (1 - (medflood[y] * STMortCACL * CACL_A_MF))*
-            (1 - (nonevent[y] * STMortCACL * CACL_A_NE))  *
-            (1 - (drought[y] * STMortCACL * CACL_A_DR))  
+        ## GCACL2 <- aCACL2 * denCACL2 * (1/denCACL3) *
+        ##     (1 - (SP_highflood[y] * STMortCACL* CACL_A_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCACL * CACL_A_NE)) *
+        ##     (1 - (medflood[y] * STMortCACL * CACL_A_MF))*
+        ##     (1 - (nonevent[y] * STMortCACL * CACL_A_NE))  *
+        ##     (1 - (drought[y] * STMortCACL * CACL_A_DR))  
 
-        PCACL3 <- (1 - aCACL3) *
-            (1 - (SP_highflood[y] * STMortCACL * CACL_A_HF)) *
-            (1 - (SU_highflood[y] * STMortCACL * CACL_A_NE)) *
-            (1 - (medflood[y] * STMortCACL * CACL_A_MF))  *
-            (1 - (nonevent[y] * STMortCACL * CACL_A_NE))  *
-            (1 - (drought[y] * STMortCACL * CACL_A_DR)) 
+        ## PCACL3 <- (1 - aCACL3) *
+        ##     (1 - (SP_highflood[y] * STMortCACL * CACL_A_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCACL * CACL_A_NE)) *
+        ##     (1 - (medflood[y] * STMortCACL * CACL_A_MF))  *
+        ##     (1 - (nonevent[y] * STMortCACL * CACL_A_NE))  *
+        ##     (1 - (drought[y] * STMortCACL * CACL_A_DR)) 
         
 
-        ## Chub
-        GGIRO1 <- aGIRO1 * denGIROJ * (1/denGIRO2) *
-            (1 - (SP_highflood[y] * STMortGIRO * GIRO_J_HF)) *
-            (1 - (SU_highflood[y] * STMortGIRO * GIRO_J_NE)) *
-            (1 - (medflood[y] * STMortGIRO * GIRO_J_MF)) *
-            (1 - (nonevent[y] * STMortGIRO * GIRO_J_NE))  *
-            (1 - (drought[y] * STMortGIRO * GIRO_J_DR)) 
+        ## ## Chub
+        ## GGIRO1 <- aGIRO1 * denGIROJ * (1/denGIRO2) *
+        ##     (1 - (SP_highflood[y] * STMortGIRO * GIRO_J_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortGIRO * GIRO_J_NE)) *
+        ##     (1 - (medflood[y] * STMortGIRO * GIRO_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortGIRO * GIRO_J_NE))  *
+        ##     (1 - (drought[y] * STMortGIRO * GIRO_J_DR)) 
         
-        GGIRO2 <- aGIRO2 * denGIRO2 * (1/denGIRO3) *
-            (1 - (SP_highflood[y] * STMortGIRO)) * GIRO_A_HF *
-            (1 - (SU_highflood[y] * STMortGIRO * GIRO_A_NE)) *
-            (1 - (medflood[y] * STMortGIRO * GIRO_A_MF)) *
-            (1 - (nonevent[y] * STMortGIRO * GIRO_A_NE)) *
-            (1 - (drought[y] * STMortGIRO * GIRO_A_DR)) 
+        ## GGIRO2 <- aGIRO2 * denGIRO2 * (1/denGIRO3) *
+        ##     (1 - (SP_highflood[y] * STMortGIRO)) * GIRO_A_HF *
+        ##     (1 - (SU_highflood[y] * STMortGIRO * GIRO_A_NE)) *
+        ##     (1 - (medflood[y] * STMortGIRO * GIRO_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortGIRO * GIRO_A_NE)) *
+        ##     (1 - (drought[y] * STMortGIRO * GIRO_A_DR)) 
 
-        PGIRO3 <- (1 - aGIRO3) *
-            (1 - (SP_highflood[y] * STMortGIRO * GIRO_A_HF)) *
-            (1 - (SU_highflood[y] * STMortGIRO * GIRO_A_NE)) *
-            (1 - (medflood[y] * STMortGIRO * GIRO_A_MF)) *
-            (1 - (nonevent[y] * STMortGIRO * GIRO_A_NE)) *
-            (1 - (drought[y] * STMortGIRO * GIRO_A_DR))
+        ## PGIRO3 <- (1 - aGIRO3) *
+        ##     (1 - (SP_highflood[y] * STMortGIRO * GIRO_A_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortGIRO * GIRO_A_NE)) *
+        ##     (1 - (medflood[y] * STMortGIRO * GIRO_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortGIRO * GIRO_A_NE)) *
+        ##     (1 - (drought[y] * STMortGIRO * GIRO_A_DR))
         
-        ## Sonora sucker
-        GCAIN1 <- aCAIN1 * denCAINJ * (1/denCAIN2) *
-            (1 - (SP_highflood[y] * STMortCAIN * CAIN_J_HF)) *
-            (1 - (SU_highflood[y] * STMortCAIN * CAIN_J_NE)) *
-            (1 - (medflood[y] * STMortCAIN * CAIN_J_MF)) *
-            (1 - (nonevent[y] * STMortCAIN * CAIN_J_NE)) *
-            (1 - (drought[y] * STMortCAIN * CAIN_J_DR))
+        ## ## Sonora sucker
+        ## GCAIN1 <- aCAIN1 * denCAINJ * (1/denCAIN2) *
+        ##     (1 - (SP_highflood[y] * STMortCAIN * CAIN_J_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCAIN * CAIN_J_NE)) *
+        ##     (1 - (medflood[y] * STMortCAIN * CAIN_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortCAIN * CAIN_J_NE)) *
+        ##     (1 - (drought[y] * STMortCAIN * CAIN_J_DR))
         
-        GCAIN2 <- aCAIN2 * denCAIN2 * (1/denCAIN3) *
-            (1 - (SP_highflood[y] * STMortCAIN * CAIN_A_HF)) *
-            (1 - (SU_highflood[y] * STMortCAIN * CAIN_A_NE)) *
-            (1 - (medflood[y] * STMortCAIN * CAIN_A_MF)) *
-            (1 - (nonevent[y] * STMortCAIN * CAIN_A_NE)) *
-            (1 - (drought[y] * STMortCAIN * CAIN_A_DR))
+        ## GCAIN2 <- aCAIN2 * denCAIN2 * (1/denCAIN3) *
+        ##     (1 - (SP_highflood[y] * STMortCAIN * CAIN_A_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCAIN * CAIN_A_NE)) *
+        ##     (1 - (medflood[y] * STMortCAIN * CAIN_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortCAIN * CAIN_A_NE)) *
+        ##     (1 - (drought[y] * STMortCAIN * CAIN_A_DR))
         
-        PCAIN3 <- (1 - aCAIN3) *
-            (1 - (SP_highflood[y] * STMortCAIN * CAIN_A_HF)) *
-            (1 - (SU_highflood[y] * STMortCAIN * CAIN_A_NE)) *
-            (1 - (medflood[y] * STMortCAIN * CAIN_A_MF)) *
-            (1 - (nonevent[y] * STMortCAIN * CAIN_A_NE)) *
-            (1 - (drought[y] * STMortCAIN * CAIN_A_DR))
+        ## PCAIN3 <- (1 - aCAIN3) *
+        ##     (1 - (SP_highflood[y] * STMortCAIN * CAIN_A_HF)) *
+        ##     (1 - (SU_highflood[y] * STMortCAIN * CAIN_A_NE)) *
+        ##     (1 - (medflood[y] * STMortCAIN * CAIN_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortCAIN * CAIN_A_NE)) *
+        ##     (1 - (drought[y] * STMortCAIN * CAIN_A_DR))
         
-        ## Non-natives
-        ## Green sunfish - note the "NN"
-        GLECY1 <- aLECY1 * denLECYJ * (1/denLECY2) *
-            (1 - (SU_highflood[y] * STMortLECY * LECY_J_HF)) *
-            (1 - (SP_highflood[y] * STMortLECY * LECY_J_MF)) *
-            (1 - (medflood[y] * STMortLECY * LECY_J_MF)) *
-            (1 - (nonevent[y] * STMortLECY * LECY_J_NE)) *
-            (1 - (drought[y] * STMortLECY * LECY_J_DR))
+        ## ## Non-natives
+        ## ## Green sunfish - note the "NN"
+        ## GLECY1 <- aLECY1 * denLECYJ * (1/denLECY2) *
+        ##     (1 - (SU_highflood[y] * STMortLECY * LECY_J_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortLECY * LECY_J_MF)) *
+        ##     (1 - (medflood[y] * STMortLECY * LECY_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortLECY * LECY_J_NE)) *
+        ##     (1 - (drought[y] * STMortLECY * LECY_J_DR))
         
-        GLECY2 <- aLECY2 * denLECY2 * (1/denLECY3) *
-            (1 - (SU_highflood[y] * STMortLECY * LECY_A_HF)) *
-            (1 - (SP_highflood[y] * STMortLECY * LECY_A_MF)) *
-            (1 - (medflood[y] * STMortLECY * LECY_A_MF)) *
-            (1 - (nonevent[y] * STMortLECY * LECY_A_NE)) *
-            (1 - (drought[y] * STMortLECY * LECY_A_DR))
+        ## GLECY2 <- aLECY2 * denLECY2 * (1/denLECY3) *
+        ##     (1 - (SU_highflood[y] * STMortLECY * LECY_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortLECY * LECY_A_MF)) *
+        ##     (1 - (medflood[y] * STMortLECY * LECY_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortLECY * LECY_A_NE)) *
+        ##     (1 - (drought[y] * STMortLECY * LECY_A_DR))
 
-        PLECY3 <- (1 - aLECY3) *
-            (1 - (SU_highflood[y] * STMortLECY * LECY_A_HF)) *
-            (1 - (SP_highflood[y] * STMortLECY * LECY_A_MF)) *
-            (1 - (medflood[y] * STMortLECY * LECY_A_MF)) *
-            (1 - (nonevent[y] * STMortLECY * LECY_A_NE)) *
-            (1 - (drought[y] * STMortLECY * LECY_A_DR))
+        ## PLECY3 <- (1 - aLECY3) *
+        ##     (1 - (SU_highflood[y] * STMortLECY * LECY_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortLECY * LECY_A_MF)) *
+        ##     (1 - (medflood[y] * STMortLECY * LECY_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortLECY * LECY_A_NE)) *
+        ##     (1 - (drought[y] * STMortLECY * LECY_A_DR))
         
-        ## Smallmouth bass
-        GMIDO1 <- aMIDO1 * denMIDOJ * (1/denMIDO2) *
-            (1 - (SU_highflood[y] * STMortMIDO * MIDO_J_HF)) *
-            (1 - (SP_highflood[y] * STMortMIDO * MIDO_J_MF)) *
-            (1 - (medflood[y] * STMortMIDO * MIDO_J_MF)) *
-            (1 - (nonevent[y] * STMortMIDO * MIDO_J_NE)) *
-            (1 - (drought[y] * STMortMIDO * MIDO_J_DR))
+        ## ## Smallmouth bass
+        ## GMIDO1 <- aMIDO1 * denMIDOJ * (1/denMIDO2) *
+        ##     (1 - (SU_highflood[y] * STMortMIDO * MIDO_J_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortMIDO * MIDO_J_MF)) *
+        ##     (1 - (medflood[y] * STMortMIDO * MIDO_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortMIDO * MIDO_J_NE)) *
+        ##     (1 - (drought[y] * STMortMIDO * MIDO_J_DR))
         
-        GMIDO2 <- aMIDO2 * denMIDO2 * (1/denMIDO3) *
-            (1 - (SU_highflood[y] * STMortMIDO * MIDO_A_HF)) *
-            (1 - (SP_highflood[y] * STMortMIDO * MIDO_A_MF)) *
-            (1 - (medflood[y] * STMortMIDO * MIDO_A_MF)) *
-            (1 - (nonevent[y] * STMortMIDO * MIDO_A_NE)) *
-            (1 - (drought[y] * STMortMIDO * MIDO_A_DR))
+        ## GMIDO2 <- aMIDO2 * denMIDO2 * (1/denMIDO3) *
+        ##     (1 - (SU_highflood[y] * STMortMIDO * MIDO_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortMIDO * MIDO_A_MF)) *
+        ##     (1 - (medflood[y] * STMortMIDO * MIDO_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortMIDO * MIDO_A_NE)) *
+        ##     (1 - (drought[y] * STMortMIDO * MIDO_A_DR))
         
-        PMIDO3 <- (1 - aMIDO3) *
-            (1 - (SU_highflood[y] * STMortMIDO * MIDO_A_HF)) *
-            (1 - (SP_highflood[y] * STMortMIDO * MIDO_J_MF)) *
-            (1 - (medflood[y] * STMortMIDO * MIDO_A_MF)) *
-            (1 - (nonevent[y] * STMortMIDO * MIDO_A_NE)) *
-            (1 - (drought[y] * STMortMIDO * MIDO_A_DR))
+        ## PMIDO3 <- (1 - aMIDO3) *
+        ##     (1 - (SU_highflood[y] * STMortMIDO * MIDO_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortMIDO * MIDO_J_MF)) *
+        ##     (1 - (medflood[y] * STMortMIDO * MIDO_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortMIDO * MIDO_A_NE)) *
+        ##     (1 - (drought[y] * STMortMIDO * MIDO_A_DR))
         
-        ## Red shiner
-        GCYLU1 <- aCYLU1 * denCYLUJ * (1/denCYLU2) *
-            (1 - (SU_highflood[y] * STMortCYLU * CYLU_J_HF)) *
-            (1 - (SP_highflood[y] * STMortCYLU * CYLU_J_MF)) *
-            (1 - (medflood[y] * STMortCYLU * CYLU_J_MF)) *
-            (1 - (nonevent[y] * STMortCYLU * CYLU_J_NE)) *
-            (1 - (drought[y] * STMortCYLU * CYLU_J_DR))
+        ## ## Red shiner
+        ## GCYLU1 <- aCYLU1 * denCYLUJ * (1/denCYLU2) *
+        ##     (1 - (SU_highflood[y] * STMortCYLU * CYLU_J_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortCYLU * CYLU_J_MF)) *
+        ##     (1 - (medflood[y] * STMortCYLU * CYLU_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortCYLU * CYLU_J_NE)) *
+        ##     (1 - (drought[y] * STMortCYLU * CYLU_J_DR))
         
-        GCYLU2 <- aCYLU2 * denCYLU2 * (1/denCYLU3) *
-            (1 - (SU_highflood[y] * STMortCYLU * CYLU_A_HF)) *
-            (1 - (SP_highflood[y] * STMortCYLU * CYLU_A_MF)) *
-            (1 - (medflood[y] * STMortCYLU * CYLU_A_MF)) *
-            (1 - (nonevent[y] * STMortCYLU * CYLU_A_NE)) *
-            (1 - (drought[y] * STMortCYLU * CYLU_A_DR))
+        ## GCYLU2 <- aCYLU2 * denCYLU2 * (1/denCYLU3) *
+        ##     (1 - (SU_highflood[y] * STMortCYLU * CYLU_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortCYLU * CYLU_A_MF)) *
+        ##     (1 - (medflood[y] * STMortCYLU * CYLU_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortCYLU * CYLU_A_NE)) *
+        ##     (1 - (drought[y] * STMortCYLU * CYLU_A_DR))
         
-        PCYLU3 <- (1 - aCYLU3) *
-            (1 - (SU_highflood[y] * STMortCYLU * CYLU_A_HF)) *
-            (1 - (SP_highflood[y] * STMortCYLU * CYLU_A_MF)) *
-            (1 - (medflood[y] * STMortCYLU * CYLU_A_MF)) *
-            (1 - (nonevent[y] * STMortCYLU * CYLU_A_NE)) *
-            (1 - (drought[y] * STMortCYLU * CYLU_A_DR))
+        ## PCYLU3 <- (1 - aCYLU3) *
+        ##     (1 - (SU_highflood[y] * STMortCYLU * CYLU_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortCYLU * CYLU_A_MF)) *
+        ##     (1 - (medflood[y] * STMortCYLU * CYLU_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortCYLU * CYLU_A_NE)) *
+        ##     (1 - (drought[y] * STMortCYLU * CYLU_A_DR))
         
-        ## Yellow bullhead
-        GAMNA1 <- aAMNA1 * denAMNAJ * (1/denAMNA2) *
-            (1 - (SU_highflood[y] * STMortAMNA * AMNA_J_HF)) *
-            (1 - (SP_highflood[y] * STMortAMNA * AMNA_J_MF)) *
-            (1 - (medflood[y] * STMortAMNA * AMNA_J_MF)) *
-            (1 - (nonevent[y] * STMortAMNA * AMNA_J_NE)) *
-            (1 - (drought[y] * STMortAMNA * AMNA_J_DR))
+        ## ## Yellow bullhead
+        ## GAMNA1 <- aAMNA1 * denAMNAJ * (1/denAMNA2) *
+        ##     (1 - (SU_highflood[y] * STMortAMNA * AMNA_J_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortAMNA * AMNA_J_MF)) *
+        ##     (1 - (medflood[y] * STMortAMNA * AMNA_J_MF)) *
+        ##     (1 - (nonevent[y] * STMortAMNA * AMNA_J_NE)) *
+        ##     (1 - (drought[y] * STMortAMNA * AMNA_J_DR))
         
-        GAMNA2 <- aAMNA2 * denAMNA2 * (1/denAMNA3) *
-            (1 - (SU_highflood[y] * STMortAMNA * AMNA_A_HF)) *
-            (1 - (SP_highflood[y] * STMortAMNA * AMNA_A_MF)) *
-            (1 - (medflood[y] * STMortAMNA * AMNA_A_MF)) *
-            (1 - (nonevent[y] * STMortAMNA * AMNA_A_NE)) *
-            (1 - (drought[y] * STMortAMNA * AMNA_A_DR))
+        ## GAMNA2 <- aAMNA2 * denAMNA2 * (1/denAMNA3) *
+        ##     (1 - (SU_highflood[y] * STMortAMNA * AMNA_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortAMNA * AMNA_A_MF)) *
+        ##     (1 - (medflood[y] * STMortAMNA * AMNA_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortAMNA * AMNA_A_NE)) *
+        ##     (1 - (drought[y] * STMortAMNA * AMNA_A_DR))
         
-        PAMNA3 <- (1 - aAMNA3) *
-            (1 - (SU_highflood[y] * STMortAMNA * AMNA_A_HF)) *
-            (1 - (SP_highflood[y] * STMortAMNA * AMNA_A_MF)) *
-            (1 - (medflood[y] * STMortAMNA * AMNA_A_MF)) *
-            (1 - (nonevent[y] * STMortAMNA * AMNA_A_NE)) *
-            (1 - (drought[y] * STMortAMNA * AMNA_A_DR))
-        
+        ## PAMNA3 <- (1 - aAMNA3) *
+        ##     (1 - (SU_highflood[y] * STMortAMNA * AMNA_A_HF)) *
+        ##     (1 - (SP_highflood[y] * STMortAMNA * AMNA_A_MF)) *
+        ##     (1 - (medflood[y] * STMortAMNA * AMNA_A_MF)) *
+        ##     (1 - (nonevent[y] * STMortAMNA * AMNA_A_NE)) *
+        ##     (1 - (drought[y] * STMortAMNA * AMNA_A_DR))
+
+
+
+
+###### PROBLEMS ########
+        #### Janes highflood years have both MF and NE modifiers at the end - I've made the below 'HF'
+
+        ## Stage 1 - G
+        for(nm in sppnames) {
+            assign(paste0('G', nm, '1'),
+
+                   get(paste0('a', nm, '1')) * get(paste0('den', nm, 'J')) * (1 / get(paste0('den', nm, '2')))  *
+                   (1 - (SU_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_J_HF')))) *
+                   (1 - (SP_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_J_HF')))) *
+                   (1 - (medflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_J_MF')))) *
+                   (1 - (nonevent[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_J_NE')))) *
+                   (1 - (drought[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_J_DR'))))
+                   )          
+        }        
+
+        ## Stage 2 - G
+        for(nm in sppnames) {
+            assign(paste0('G', nm, '2'),
+
+                   get(paste0('a', nm, '2')) * get(paste0('den', nm, '2')) * (1 / get(paste0('den', nm, '3')))  *
+                   (1 - (SU_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_HF')))) *
+                   (1 - (SP_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_HF')))) *
+                   (1 - (medflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_MF')))) *
+                   (1 - (nonevent[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_NE')))) *
+                   (1 - (drought[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_DR'))))
+                   )          
+        }        
+
+        ## Stage 3 - P
+        for(nm in sppnames) {
+            assign(paste0('P', nm, '3'),
+
+                   (1 - get(paste0('a', nm, '3'))) *
+                   (1 - (SU_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_HF')))) *
+                   (1 - (SP_highflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_HF')))) *
+                   (1 - (medflood[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_MF')))) *
+                   (1 - (nonevent[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_NE')))) *
+                   (1 - (drought[y] * get(paste0('STMort', nm)) * get(paste0(nm, '_A_DR'))))
+                   )          
+        }          
         
         ## Total grams occupied after year -----------------------------------------------
+       
+        totbiom <- ldply(sppnames, function(x)
+            get(paste0('biom', x))[1] +
+            get(paste0('biom', x))[2] +
+            get(paste0('biom', x))[3]) %>%
+            sum
+        
+        ## totbiom.CACL <- 
+        ##     biomCACL[1] + #
+        ##     biomCACL[2] + 
+        ##     biomCACL[3] 
 
-        totbiom.CACL <- 
-            biomCACL[1] + #
-            biomCACL[2] + 
-            biomCACL[3] 
+        ## totbiom.GIRO <- 
+        ##     biomGIRO[1] + #
+        ##     biomGIRO[2] + 
+        ##     biomGIRO[3] 
 
-        totbiom.GIRO <- 
-            biomGIRO[1] + #
-            biomGIRO[2] + 
-            biomGIRO[3] 
+        ## totbiom.LECY <- 
+        ##     biomLECY[1] + #
+        ##     biomLECY[2] + 
+        ##     biomLECY[3] 
 
-        totbiom.LECY <- 
-            biomLECY[1] + #
-            biomLECY[2] + 
-            biomLECY[3] 
+        ## totbiom.CAIN <- 
+        ##     biomCAIN[1] + #
+        ##     biomCAIN[2] + 
+        ##     biomCAIN[3] 
 
-        totbiom.CAIN <- 
-            biomCAIN[1] + #
-            biomCAIN[2] + 
-            biomCAIN[3] 
+        ## totbiom.MIDO <- 
+        ##     biomMIDO[1] + #
+        ##     biomMIDO[2] + 
+        ##     biomMIDO[3] 
 
-        totbiom.MIDO <- 
-            biomMIDO[1] + #
-            biomMIDO[2] + 
-            biomMIDO[3] 
+        ## totbiom.CYLU <- 
+        ##     biomCYLU[1] + #
+        ##     biomCYLU[2] + 
+        ##     biomCYLU[3] 
 
-        totbiom.CYLU <- 
-            biomCYLU[1] + #
-            biomCYLU[2] + 
-            biomCYLU[3] 
+        ## totbiom.AMNA <- 
+        ##     biomAMNA[1] + #
+        ##     biomAMNA[2] + 
+        ##     biomAMNA[3] 
 
-        totbiom.AMNA <- 
-            biomAMNA[1] + #
-            biomAMNA[2] + 
-            biomAMNA[3] 
-
+        
 ### Carrying capacity (K) is limiting spawning of all species based on the total biomass occupied at the end of the previous year. 
         ## i.e. if above K, no spp spawn in that year. If spawning occurs, they all spawn.
 
+        ## Some slight differences in fecund so can't loop/lapply
+        
         ## POTENTIAL CACL FECUNDITY ---------------------------------------------------------
-        FCACL2 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCACL1*(1/denCACLJ)
-        FCACL3 <- ((0.5*GSI.CACL*(1-S0MortCACL))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCACL1*(1/denCACLJ)
-
+        FCACL2 <- ((0.5 * GSI.CACL * (1 - S0MortCACL)) * checkpos((K - totbiom)/K)) *
+            denCACL1 * (1/denCACLJ)
+        
+        FCACL3 <- ((0.5 * GSI.CACL * (1 - S0MortCACL)) * checkpos((K - totbiom)/K)) *
+            denCACL1 * (1/denCACLJ)
 
         ## POTENTIAL GIRO FECUNDITY ---------------------------------------------------------
-        FGIRO2 <- ((0.5*GSI.GIRO*(1-S0MortGIRO))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denGIRO1*(1/denGIROJ)
-        FGIRO3 <- ((0.5*GSI.GIRO*(1-S0MortGIRO))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denGIRO1*(1/denGIROJ)
+        FGIRO2 <- ((0.5 * GSI.GIRO * (1 - S0MortGIRO)) * checkpos((K - totbiom)/K)) * 
+            denGIRO1 * (1/denGIROJ)
+        
+        FGIRO3 <- ((0.5 * GSI.GIRO * (1 - S0MortGIRO)) * checkpos((K - totbiom)/K)) *
+            denGIRO1 * (1/denGIROJ)
 
         ## POTENTIAL CAIN FECUNDITY ---------------------------------------------------------
-
-        FCAIN3 <- ((0.5*GSI.CAIN*(1-S0MortCAIN))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCAIN1*(1/denCAINJ)
+        FCAIN3 <- ((0.5 * GSI.CAIN * (1 - S0MortCAIN)) * checkpos((K - totbiom)/K)) *
+            denCAIN1 * (1/denCAINJ)
 
         ## POTENTIAL LECY FECUNDITY ---------------------------------------------------------
-        FLECY2 <- ((0.5*GSI.LECY*(1-S0MortLECY))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denLECY1*(1/denLECYJ)
-        FLECY3 <- ((0.5*GSI.LECY*(1-S0MortLECY))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denLECY1*(1/denLECYJ)
+        FLECY2 <- ((0.5 * GSI.LECY * (1 - S0MortLECY)) * checkpos((K - totbiom)/K)) *
+            denLECY1 * (1/denLECYJ)
+        
+        FLECY3 <- ((0.5 * GSI.LECY * (1 - S0MortLECY)) * checkpos((K - totbiom)/K)) * 
+            denLECY1 * (1/denLECYJ)
+        
         ## POTENTIAL MIDO FECUNDITY ---------------------------------------------------------
-
-        FMIDO3 <- ((0.5*GSI.MIDO*(1-S0MortMIDO))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denMIDO1*(1/denMIDOJ)
+        FMIDO3 <- ((0.5 * GSI.MIDO * (1 - S0MortMIDO)) * checkpos((K - totbiom)/K)) *
+            denMIDO1 * (1/denMIDOJ)
 
         ## POTENTIAL CYLU FECUNDITY ---------------------------------------------------------
         ## because they are serial spawners, they are allowed to spawn twice a season in stage 2 and 3
-        FCYLUJ <- ((0.5*GSI.CYLU*(1-S0MortCYLU))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCYLU1*(1/denCYLUJ)
-        FCYLU2 <- ((0.5*2*GSI.CYLU*(1-S0MortCYLU))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCYLU1*(1/denCYLUJ)
-        FCYLU3 <- ((0.5*2*GSI.CYLU*(1-S0MortCYLU))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denCYLU1*(1/denCYLUJ)
+        FCYLUJ <- ((0.5 * GSI.CYLU * (1 - S0MortCYLU)) * checkpos((K - totbiom)/K)) * 
+            denCYLU1 * (1/denCYLUJ)
+        
+        FCYLU2 <- ((0.5 * 2 * GSI.CYLU * (1 - S0MortCYLU)) * checkpos((K - totbiom)/K)) *
+            denCYLU1 * (1/denCYLUJ)
+        
+        FCYLU3 <- ((0.5 * 2 * GSI.CYLU * (1 - S0MortCYLU)) * checkpos((K - totbiom)/K)) *
+            denCYLU1 * (1/denCYLUJ)
 
         ## POTENTIAL AMNA FECUNDITY ---------------------------------------------------------
-
-        FAMNA3 <- ((0.5*GSI.AMNA*(1-S0MortAMNA))*
-                   checkpos((K - sum(totbiom.CACL, totbiom.GIRO, totbiom.LECY, totbiom.CAIN, totbiom.MIDO, totbiom.CYLU, totbiom.AMNA))/K))*
-            denAMNA1*(1/denAMNAJ)
+        FAMNA3 <- ((0.5 * GSI.AMNA * (1 - S0MortAMNA)) * checkpos((K - totbiom)/K)) *
+            denAMNA1 * (1/denAMNAJ)
 
 
         ## K --------------------------------------------------------------------------------------
         ## CACL
         ## gives total CACL biomass (g) as a percentage of K; 
-        KCACL <- 100 * (biomCACL[1] + 
-                        biomCACL[2] + 
-                        biomCACL[3])/K
+        ## KCACL <- 100 * (biomCACL[1] + 
+        ##                 biomCACL[2] + 
+        ##                 biomCACL[3])/K
 
-        ## GIRO
-        ## gives total GIRO biomass as a percentage of K; 
-        KGIRO <- 100 * (biomGIRO[1] + 
-                        biomGIRO[2] + 
-                        biomGIRO[3])/K
+        ## ## GIRO
+        ## ## gives total GIRO biomass as a percentage of K; 
+        ## KGIRO <- 100 * (biomGIRO[1] + 
+        ##                 biomGIRO[2] + 
+        ##                 biomGIRO[3])/K
 
-        ## LECY
-        ## gives total LECY biomass as a percentage of K; 
-        KLECY <- 100 * (biomLECY[1] + 
-                        biomLECY[2] + 
-                        biomLECY[3])/K
+        ## ## LECY
+        ## ## gives total LECY biomass as a percentage of K; 
+        ## KLECY <- 100 * (biomLECY[1] + 
+        ##                 biomLECY[2] + 
+        ##                 biomLECY[3])/K
 
-        ## CAIN
-        ## gives total CAIN biomass as a percentage of K; 
-        KCAIN <- 100 * (biomCAIN[1] + 
-                        biomCAIN[2] + 
-                        biomCAIN[3])/K
+        ## ## CAIN
+        ## ## gives total CAIN biomass as a percentage of K; 
+        ## KCAIN <- 100 * (biomCAIN[1] + 
+        ##                 biomCAIN[2] + 
+        ##                 biomCAIN[3])/K
 
-        ## MIDO
-        ## gives total MIDO biomass as a percentage of K; 
-        KMIDO <- 100 * (biomMIDO[1] + 
-                        biomMIDO[2] + 
-                        biomMIDO[3])/K
+        ## ## MIDO
+        ## ## gives total MIDO biomass as a percentage of K; 
+        ## KMIDO <- 100 * (biomMIDO[1] + 
+        ##                 biomMIDO[2] + 
+        ##                 biomMIDO[3])/K
 
-        ## CYLU
-        ## gives total CYLU biomass as a percentage of K; 
-        KCYLU <- 100 * (biomCYLU[1] + 
-                        biomCYLU[2] + 
-                        biomCYLU[3])/K
+        ## ## CYLU
+        ## ## gives total CYLU biomass as a percentage of K; 
+        ## KCYLU <- 100 * (biomCYLU[1] + 
+        ##                 biomCYLU[2] + 
+        ##                 biomCYLU[3])/K
 
-        ## AMNA
-        ## gives total CYLU biomass as a percentage of K; 
-        KAMNA <- 100 * (biomAMNA[1] + 
-                        biomAMNA[2] + 
-                        biomAMNA[3])/K
+        ## ## AMNA
+        ## ## gives total CYLU biomass as a percentage of K; 
+        ## KAMNA <- 100 * (biomAMNA[1] + 
+        ##                 biomAMNA[2] + 
+        ##                 biomAMNA[3])/K
+
+        ## Calculating the percentage of K occupied and addting to KCACL etc
+        for(nm in sppnames) {
+            assign(paste0('K', nm), 100 * (
+                get(paste0('biom', nm))[1] +   
+                get(paste0('biom', nm))[2] +
+                get(paste0('biom', nm))[3])/K)                                  
+        }
+        
         
         ## TRANSITION MATRICES --------------------------------------------------------------------
 
@@ -668,244 +702,171 @@ for(iter in 1:iterations) {
         ACACL2 <- c(GCACL1, 0, 0)
         ACACL3 <- c(0, GCACL2, PCACL3)
         ## Matrix
-        ACACL <- rbind(ACACL1, ACACL2, ACACL3)
+        ## ACACL <- rbind(ACACL1, ACACL2, ACACL3)
 
         ## TRANSITION MATRIX FOR GIRO -------------------------------------------------------
         AGIRO1 <- c(0, FGIRO2, FGIRO3)
         AGIRO2 <- c(GGIRO1, 0, 0)
         AGIRO3 <- c(0, GGIRO2, PGIRO3)
         ## Matrix
-        AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
+        ## AGIRO <- rbind(AGIRO1, AGIRO2, AGIRO3)
 
         ## TRANSITION MATRIX FOR LECY -------------------------------------------------------
         ALECY1 <- c(0, FLECY2, FLECY3)
         ALECY2 <- c(GLECY1, 0, 0)
         ALECY3 <- c(0, GLECY2, PLECY3)
         ## Matrix
-        ALECY <- rbind(ALECY1, ALECY2, ALECY3)
+        ## ALECY <- rbind(ALECY1, ALECY2, ALECY3)
 
         ## TRANSITION MATRIX FOR CAIN -------------------------------------------------------
         ACAIN1 <- c(0, 0, FCAIN3)
         ACAIN2 <- c(GCAIN1, 0, 0)
         ACAIN3 <- c(0, GCAIN2, PCAIN3)
         ## Matrix
-        ACAIN <- rbind(ACAIN1, ACAIN2, ACAIN3)
+        ## ACAIN <- rbind(ACAIN1, ACAIN2, ACAIN3)
 
         ## TRANSITION MATRIX FOR MIDO -------------------------------------------------------
         AMIDO1 <- c(0, 0, FMIDO3)
         AMIDO2 <- c(GMIDO1, 0, 0)
         AMIDO3 <- c(0, GMIDO2, PMIDO3)
         ## Matrix
-        AMIDO <- rbind(AMIDO1, AMIDO2, AMIDO3)
+        ## AMIDO <- rbind(AMIDO1, AMIDO2, AMIDO3)
 
         ## TRANSITION MATRIX FOR CYLU -------------------------------------------------------
         ACYLU1 <- c(FCYLUJ, FCYLU2, FCYLU3)
         ACYLU2 <- c(GCYLU1, 0, 0)
         ACYLU3 <- c(0, GCYLU2, PCYLU3)
         ## Matrix
-        ACYLU <- rbind(ACYLU1, ACYLU2, ACYLU3)
+        ## ACYLU <- rbind(ACYLU1, ACYLU2, ACYLU3)
 
         ## TRANSITION MATRIX FOR AMNA -------------------------------------------------------
         AAMNA1 <- c(0, 0, FAMNA3)
         AAMNA2 <- c(GAMNA1, 0, 0)
         AAMNA3 <- c(0, GAMNA2, PAMNA3)
         ## Matrix
-        AAMNA <- rbind(AAMNA1, AAMNA2, AAMNA3)
+        ## AAMNA <- rbind(AAMNA1, AAMNA2, AAMNA3)
 
+
+        ## AAMNA1 <- c('a', 'b', 'c')
+        ## AAMNA2 <- c('d', 'e', 'f')
+        ## AAMNA3 <- c('g', 'h', 'i')
+
+        ## ACACL3 <- c('a', 'b', 'c')
+        ## ACACL2 <- c('d', 'e', 'f')
+        ## ACACL1 <- c('g', 'h', 'i')
+
+        ## spnmtest <- c('AMNA', 'CACL')
+
+        ## rbinding the vectors from above into transition matrices
+        for(nm in sppnames) {
+            assign(paste0('A', nm), rbind(
+                                        get(paste0('A', nm, '1')),
+                                        get(paste0('A', nm, '2')),
+                                        get(paste0('A', nm, '3'))
+                                    ))
+        }
+        
         ## COMPILING OUTPUTS ----------------------------------------------------------------------
 
+
+        ## Lambda values
         ## Filling in the df with lambda values for each species and each year
         ## Species as columns, years as rows
         ## This applies 'lambda(ACACL)' etc and adds to correct column each 'i' value (year)
-
-
-        ACACL <- matrix(1:9,3)
-        AGIRO <- matrix(1:3,3,3)
-        ALECY <- matrix(1:4,3,3)
-        ACAIN <- matrix(1:5,3,3)
-        AMIDO <- matrix(1:6,3,3)
-        ACYLU <- matrix(1:7,3,3)
-        AAMNA <- matrix(1:8,3,3)
-
-        lambda(ACACL)
-        lambda(AGIRO)
-        lambda(ALECY)
-        lambda(ACAIN)
-        lambda(AMIDO)
-        lambda(ACYLU)
-        lambda(AAMNA)
-
-        ## correct one below
         lambda.df[i,] <- sapply(mget(paste0('A', names(lambda.df))), lambda)
 
-
-        ## CACL
-        CACLoutput.biom[i,1:3] <- biomCACL # array of biomass of each age class for each yr projected. biomCACL = total biomass for each age class
-        ##CACLbiomoutput[i] <- KCACL # total biomass as % of K; this is in g
+        ## Fecundity values
+        ## Cant loop or anything as different for diff spp
         fec.list$CACL[i] <- FCACL3 + FCACL2
-        output.N.list$CACL[i, 1:3] <- 
-            c(biomCACL[1] * denCACLJ,
-              biomCACL[2] * denCACL2,
-              biomCACL[3] * denCACL3)
-        ##CACL.lambda[i] <- lambda(ACACL)
-        ==== HERE ==== this is broken!!!
-                           =============
-       
+        fec.list$GIRO[i] <- FGIRO3 + FGIRO2
+        fec.list$LECY[i] <- FLECY3 + FLECY2
+        fec.list$CAIN[i] <- FCAIN3
+        fec.list$MIDO[i] <- FMIDO3
+        fec.list$CYLU[i] <- FCYLU3 + FCYLU2 + FCYLUJ
+        fec.list$AMNA[i] <- FAMNA3
 
 
-        biomGIRO
-        biomAMNA
-        biomCAIN
-
-
-
-        
-HEREHERHEHEREHERHEHERHERHERHERHERHERHERHERHERHEHER
-        ============================== CORRECT!!!!!!
-                                           =============================
-        =============================
-        =============================
-        =============================
-        =============================
-        =============================
+        ## biomass values into each df/array in the list
         for(nm in sppnames) {
-            output.biom.list[[nm]][6,1:3] <- get(paste0('biom', nm))
+            output.biom.list[[nm]][i,1:3] <- get(paste0('biom', nm))
         }
-        =============================
-        =============================
-        =============================
-        =============================
-        =============================
-        =============================
-
-      output.biom.list
-        
-output.biom.array <- array(0, dim = c(count, 3))
-
-        output.biom.df <- data.frame(matrix(ncol = 3, nrow = count))
-## Repeating the array 7 times 
-output.biom.list <- rep(list(output.biom.array), 7)
-
-## Assigning names to each array from sppnames vector
-names(output.biom.list) <- sppnames
-
-output.biom.list$CACL[3,] <- c(4,5,6)
-        biomCACL
-        biomGIRO
-        biomLECY
-        biomCAIN
-
-        lapply(output.biom.list, str)
-
-
-        test <- 
-        map2(.x = output.biom.list, .y = names(output.biom.list), ~ .x[2,] <- get(paste0('biom', .y)))
-
         
 
-
-        lapply(output.biom.list, function(x) map(names(x), ~ get(paste0('biom', .))))
-
-        map(names(output.biom.list), ~ get(paste0('biom', .)))
+        ## N values into each df/array in the list
         
-
-        map2(.x = output.biom.list, .y = names(output.biom.list), function(x, y)  with(x[3,], get(paste0('biom', y))))
-
-
-
-
-        map2(.x = output.biom.list, .y = names(output.biom.list), function(x, y) mutate(x[3,], get(paste0('biom', y))))
-        test
-str(test)
-            map2(.x = output.biom.list, .y = names(output.biom.list), function(x, y) x[3,] )
-
-        biomCACL
-
-
-        CACLoutput.biom[3,1:3] <- biomCACL
-        biomGIRO
-
-Objs(output.biom.list)
-        names(CACLoutput.biom)
-
-
-        
-        output.biom.list
-        x[i, 1:3]
-        names(output.biom.list)
-
-        mapply(get, )
-
-        lapply(output.biom.list, function(x) {
-            x[i, 1:3] <- get(paste0('biom', names(x)))
+        for(nm in sppnames) {
+            output.N.list[[nm]][i,1:3] <- c(get(paste0('biom', nm))[1] * get(paste0('den', nm, 'J')),
+                                            get(paste0('biom', nm))[2] * get(paste0('den', nm, '2')),
+                                            get(paste0('biom', nm))[3] * get(paste0('den', nm, '3')))
         }
-        )
-        output.biom.list <-
-          test <- lapply(output.biom.list, '[', 3 = c(10,2,1), )
-        test
         
-        lapply(output.biom.list, function(x) x[1])
-        lapply(output.biom.list, `[[`, 1)
+        
+
+        #map2(.x = output.biom.list, .y = names(output.biom.list), ~ get(paste0('biom', .y)))
+
+        
+        ## CACL
+        ## CACLoutput.biom[i,1:3] <- biomCACL # array of biomass of each age class for each yr projected. biomCACL = total biomass for each age class
+        ## ##CACLbiomoutput[i] <- KCACL # total biomass as % of K; this is in g
+        ## output.N.list$CACL[i, 1:3] <- 
+        ##     c(biomCACL[1] * denCACLJ,
+        ##       biomCACL[2] * denCACL2,
+        ##       biomCACL[3] * denCACL3)
+        ## ##CACL.lambda[i] <- lambda(ACACL)
         
         ## GIRO
-        GIROoutput.biom[i,1:3] <- biomGIRO # array of biomass of each age class for each yr projected. biomGIRO = total biomass for each age class
-        ##GIRObiomoutput[i] <- KGIRO # total biomass as % of K; this is in g
-        fec.list$GIRO[i] <- FGIRO3 + FGIRO2
-        output.N.list$GIRO[i, 1:3] <- 
-            c(biomGIRO[1] * denGIROJ,
-              biomGIRO[2] * denGIRO2,
-              biomGIRO[3] * denGIRO3)
-        ##GIRO.lambda[i] <- lambda(AGIRO)   
+        ## GIROoutput.biom[i,1:3] <- biomGIRO # array of biomass of each age class for each yr projected. biomGIRO = total biomass for each age class
+        ## ##GIRObiomoutput[i] <- KGIRO # total biomass as % of K; this is in g
+        ## output.N.list$GIRO[i, 1:3] <- 
+        ##     c(biomGIRO[1] * denGIROJ,
+        ##       biomGIRO[2] * denGIRO2,
+        ##       biomGIRO[3] * denGIRO3)
+        ## ##GIRO.lambda[i] <- lambda(AGIRO)   
 
-        ## LECY
-        LECYoutput.biom[i,1:3] <- biomLECY # array of biomass of each age class for each yr projected. biomLECY = total biomass for each age class
-        ##LECYbiomoutput[i] <- KLECY # total biomass as % of K; this is in g 
-        fec.list$LECY[i] <- FLECY3 + FLECY2
-        output.N.list$LECY[i, 1:3] <- 
-            c(biomLECY[1] * denLECYJ,
-              biomLECY[2] * denLECY2,
-              biomLECY[3] * denLECY3)
-        ##LECY.lambda[i] <- lambda(ALECY)
+        ## ## LECY
+        ## LECYoutput.biom[i,1:3] <- biomLECY # array of biomass of each age class for each yr projected. biomLECY = total biomass for each age class
+        ## ##LECYbiomoutput[i] <- KLECY # total biomass as % of K; this is in g 
+        ## output.N.list$LECY[i, 1:3] <- 
+        ##     c(biomLECY[1] * denLECYJ,
+        ##       biomLECY[2] * denLECY2,
+        ##       biomLECY[3] * denLECY3)
+        ## ##LECY.lambda[i] <- lambda(ALECY)
 
-        ## CAIN
-        CAINoutput.biom[i,1:3] <- biomCAIN # array of biomass of each age class for each yr projected. biomCAIN = total biomass for each age class
-        ##CAINbiomoutput[i] <- KCAIN # total biomass as % of K; this is in g 
-        fec.list$CAIN[i] <- FCAIN3
-        output.N.list$CAIN[i, 1:3] <- 
-            c(biomCAIN[1] * denCAINJ,
-              biomCAIN[2] * denCAIN2,
-              biomCAIN[3] * denCAIN3)
-        ##CAIN.lambda[i] <- lambda(ACAIN)
+        ## ## CAIN
+        ## CAINoutput.biom[i,1:3] <- biomCAIN # array of biomass of each age class for each yr projected. biomCAIN = total biomass for each age class
+        ## ##CAINbiomoutput[i] <- KCAIN # total biomass as % of K; this is in g 
+        ## output.N.list$CAIN[i, 1:3] <- 
+        ##     c(biomCAIN[1] * denCAINJ,
+        ##       biomCAIN[2] * denCAIN2,
+        ##       biomCAIN[3] * denCAIN3)
+        ## ##CAIN.lambda[i] <- lambda(ACAIN)
 
-        ## MIDO
-        MIDOoutput.biom[i,1:3] <- biomMIDO # array of biomass of each age class for each yr projected. biomMIDO = total biomass for each age class
-        ##MIDObiomoutput[i] <- KMIDO # total biomass as % of K; this is in g 
-        fec.list$MIDO[i] <- FMIDO3
-        output.N.list$MIDO[i, 1:3] <- 
-            c(biomMIDO[1] * denMIDOJ,
-              biomMIDO[2] * denMIDO2,
-              biomMIDO[3] * denMIDO3)
-        ##MIDO.lambda[i] <- lambda(AMIDO)
+        ## ## MIDO
+        ## MIDOoutput.biom[i,1:3] <- biomMIDO # array of biomass of each age class for each yr projected. biomMIDO = total biomass for each age class
+        ## ##MIDObiomoutput[i] <- KMIDO # total biomass as % of K; this is in g 
+        ## output.N.list$MIDO[i, 1:3] <- 
+        ##     c(biomMIDO[1] * denMIDOJ,
+        ##       biomMIDO[2] * denMIDO2,
+        ##       biomMIDO[3] * denMIDO3)
+        ## ##MIDO.lambda[i] <- lambda(AMIDO)
 
-        ## CYLU
-        CYLUoutput.biom[i,1:3] <- biomCYLU # array of biomass of each age class for each yr projected. biomCYLU = total biomass for each age class
-        ##CYLUbiomoutput[i] <- KCYLU # total biomass as % of K; this is in g 
-        fec.list$CYLU[i] <- FCYLU3 + FCYLU2 + FCYLUJ
-        output.N.list$CYLU[i, 1:3] <- 
-            c(biomCYLU[1] * denCYLUJ,
-              biomCYLU[2] * denCYLU2,
-              biomCYLU[3] * denCYLU3)
-        ##CYLU.lambda[i] <- lambda(ACYLU)
+        ## ## CYLU
+        ## CYLUoutput.biom[i,1:3] <- biomCYLU # array of biomass of each age class for each yr projected. biomCYLU = total biomass for each age class
+        ## ##CYLUbiomoutput[i] <- KCYLU # total biomass as % of K; this is in g 
+        ## output.N.list$CYLU[i, 1:3] <- 
+        ##     c(biomCYLU[1] * denCYLUJ,
+        ##       biomCYLU[2] * denCYLU2,
+        ##       biomCYLU[3] * denCYLU3)
+        ## ##CYLU.lambda[i] <- lambda(ACYLU)
 
-        ## AMNA
-        AMNAoutput.biom[i,1:3] <- biomAMNA # array of biomass of each age class for each yr projected. biomAMNA = total biomass for each age class
-        ##AMNAbiomoutput[i] <- KAMNA # total biomass as % of K; this is in g 
-        fec.list$AMNA[i] <- FAMNA3
-        output.N.list$AMNA[i, 1:3] <- 
-            c(biomAMNA[1] * denAMNAJ,
-              biomAMNA[2] * denAMNA2,
-              biomAMNA[3] * denAMNA3)
-        ##AMNA.lambda[i] <- lambda(AAMNA)
+        ## ## AMNA
+        ## AMNAoutput.biom[i,1:3] <- biomAMNA # array of biomass of each age class for each yr projected. biomAMNA = total biomass for each age class
+        ## ##AMNAbiomoutput[i] <- KAMNA # total biomass as % of K; this is in g 
+        ## output.N.list$AMNA[i, 1:3] <- 
+        ##     c(biomAMNA[1] * denAMNAJ,
+        ##       biomAMNA[2] * denAMNA2,
+        ##       biomAMNA[3] * denAMNA3)
+        ## ##AMNA.lambda[i] <- lambda(AAMNA)
 
         ## Records flood settings of each particular projected year (0 for nonflood, 1 for flood)
         flowresults$SPhighflood[i] <- SP_highflood[y]
@@ -917,49 +878,88 @@ Objs(output.biom.list)
         
         ## MATRIX MULTIPLICATION ------------------------------------------------------------------
         ## can include rescue function for each with 0.5 chance of reach being colonized by 2 individuals
-        ## CACL
-        biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total biomass for each age class,
+        ## ## CACL
+        ## biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total biomass for each age class,
 
-        ## GIRO
-        biomGIRO <- AGIRO %*% biomGIRO # AGIRO is transition matrix, biomGIRO = total biomass for each age class
+        ## ## GIRO
+        ## biomGIRO <- AGIRO %*% biomGIRO # AGIRO is transition matrix, biomGIRO = total biomass for each age class
 
-        ## LECY
-        biomLECY <- ALECY %*% biomLECY  # ALECY is transition matrix, biomLECY = total biomass for each age class
+        ## ## LECY
+        ## biomLECY <- ALECY %*% biomLECY  # ALECY is transition matrix, biomLECY = total biomass for each age class
 
-        ## CAIN
-        biomCAIN <- ACAIN %*% biomCAIN # ACAIN is transition matrix, biomCAIN = total biomass for each age class
+        ## ## CAIN
+        ## biomCAIN <- ACAIN %*% biomCAIN # ACAIN is transition matrix, biomCAIN = total biomass for each age class
 
-        ## MIDO
-        biomMIDO <- AMIDO %*% biomMIDO # AMIDO is transition matrix, biomMIDO = total biomass for each age class
+        ## ## MIDO
+        ## biomMIDO <- AMIDO %*% biomMIDO # AMIDO is transition matrix, biomMIDO = total biomass for each age class
 
-        ## CYLU
-        biomCYLU <- ACYLU %*% biomCYLU # ACYLU is transition matrix, biomCYLU = total biomass for each age class
+        ## ## CYLU
+        ## biomCYLU <- ACYLU %*% biomCYLU # ACYLU is transition matrix, biomCYLU = total biomass for each age class
 
-        ## AMNA
-        biomAMNA <- AAMNA %*% biomAMNA # AAMNA is transition matrix, biomAMNA = total biomass for each age class
+        ## ## AMNA
+        ## biomAMNA <- AAMNA %*% biomAMNA # AAMNA is transition matrix, biomAMNA = total biomass for each age class
 
 
+       
+        ## biomCACL <- c(1,2,3)
+        ## biomGIRO <- c(1,2,3)
+        ## biomLECY <- c(1,2,3)
+        ## biomCAIN <- c(1,2,3)
+        ## biomMIDO <- c(1,2,3)
+        ## biomCYLU <- c(1,2,3)
+        ## biomAMNA <- c(1,2,3)
+        
+        ## ## Getting matrices just to test
+        ## ACACL <- matrix(1:9,3)
+        ## AGIRO <- matrix(1:3,3,3)
+        ## ALECY <- matrix(1:4,3,3)
+        ## ACAIN <- matrix(1:5,3,3)
+        ## AMIDO <- matrix(1:6,3,3)
+        ## ACYLU <- matrix(1:7,3,3)
+        ## AAMNA <- matrix(1:8,3,3)
+
+        ## Matrix multiplication loop - essentially ==
+        ## biomAMNA <- AAMNA %*% biomAMNA # AAMNA is transition matrix, biomAMNA = total biomass for each age class
+        for(nm in sppnames) {
+             assign(paste0('biom', nm), get(paste0('A', nm)) %*% get(paste0('biom', nm)))
+        }
+        
         
     } # End of inner loop ####################################################################
 
     ## Mean values for each iteration run over each sequence of years
     ## GESPoutput.N[31:45, 2:3] to compare 94-08 with stage 2 and stage 3 added together
-    replist$CACL[,,iter] <- output.N.list$CACL
-    replist$GIRO[,,iter] <- output.N.list$GIRO
-    replist$LECY[,,iter] <- output.N.list$LECY
-    replist$CAIN[,,iter] <- output.N.list$CAIN
-    replist$MIDO[,,iter] <- output.N.list$MIDO
-    replist$CYLU[,,iter] <- output.N.list$CYLU
-    replist$AMNA[,,iter] <- output.N.list$AMNA
+    ## replist$CACL[,,1] <- output.N.list$CACL
+    ## replist$GIRO[,,1] <- output.N.list$GIRO
+    ## replist$LECY[,,iter] <- output.N.list$LECY
+    ## replist$CAIN[,,iter] <- output.N.list$CAIN
+    ## replist$MIDO[,,iter] <- output.N.list$MIDO
+    ## replist$CYLU[,,iter] <- output.N.list$CYLU
+    ## replist$AMNA[,,iter] <- output.N.list$AMNA
 
-    Total.N[,iter] <- apply(
-        cbind(output.N.list$CACL[,2:3],
-              output.N.list$GIRO[,2:3],
-              output.N.list$LECY[,2:3],
-              output.N.list$CAIN[,2:3],
-              output.N.list$MIDO[,2:3],
-              output.N.list$CYLU[,2:3],
-              output.N.list$AMNA[,2:3]), 1, sum)
+    ## In a loop
+    for(nm in sppnames) {
+        replist[[nm]][,,iter] <- output.N.list[[nm]]    
+    }
+    
+    ## Total.N[,iter] <- apply(
+    ##     cbind(output.N.list$CACL[,2:3],
+    ##           output.N.list$GIRO[,2:3],
+    ##           output.N.list$LECY[,2:3],
+    ##           output.N.list$CAIN[,2:3],
+    ##           output.N.list$MIDO[,2:3],
+    ##           output.N.list$CYLU[,2:3],
+    ##           output.N.list$AMNA[,2:3]), 1, sum)
+
+        
+    ## Caculating Total.N for each year, and adding it to total.N data frame with however many iterations run.
+    ## Total does not incl. juveniles.
+    ## map is purrr version of lapply. Can pass fn using ~ and .x instead of function(x) x
+    ## Gets list output of stages 2:3 for ea spp, then cbinds them all together, then caclcs sum. 
+    Total.N[,iter] <- map(output.N.list, ~ .x[,2:3]) %>%
+        do.call('cbind', .) %>%
+        apply(1, sum)
+
 
 } # End of mid loop ######################################################################
 ## ########################################################################################
@@ -972,30 +972,51 @@ Objs(output.biom.list)
 ## FINAL iteration data to examine plots ---------------------------------------
 ## Compiling abundance and biomass outputs into single dfs ----------------------------------------------------
 
+### OLD
 ## Function to make longform dataframes of biomass and abundance  
-make.dat <- function(spec, biomN){
+## make.dat <- function(spec, biomN){
 
-    datname <- get(paste0(spec, 'output.', biomN))
+##     datname <- get(paste0(spec, 'output.', biomN))
     
-    dat <- as.data.frame(datname) %>%
-        rename(S1 = V1, S2 = V2, S3 = V3) %>%
-        mutate(rep = row.names(.)) %>%
-        gather(stage, val, -rep) %>%
-        mutate(spp = spec)            
+##     dat <- as.data.frame(datname) %>%
+##         rename(S1 = V1, S2 = V2, S3 = V3) %>%
+##         mutate(rep = row.names(.)) %>%
+##         gather(stage, val, -rep) %>%
+##         mutate(spp = spec)            
 
-    return(dat)
-}
+##     return(dat)
+## }
 
 ## Using ldply to call sppnames and create a new df element in list based on make.dat fn.
 ## Then convert back to one full df. 
 
 ## Biom
-ALLoutput.biom.DF <- ldply(sppnames, function(x) make.dat(x, biomN = 'biom')) %>%
-    rename(g = val) 
+#ALLoutput.biom.DF <- ldply(sppnames, function(x) make.dat(x, biomN = 'biom')) %>%
+ #   rename(g = val) 
+
+
+
+### NEW
+
+ALLoutput.biom.DF <- ldply(output.biom.list, function(x) {
+    as.data.frame(x) %>%
+        rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather(stage, val, -rep) 
+}) %>%
+    rename(spp = `.id`, g = val)
+
+ALLoutput.N.DF <- ldply(output.N.list, function(x) {
+    as.data.frame(x) %>%
+        rename(S1 = V1, S2 = V2, S3 = V3) %>%
+        mutate(rep = row.names(.)) %>%
+        gather(stage, val, -rep) 
+}) %>%
+    rename(spp = `.id`, N = val)
 
 ## N
-ALLoutput.N.DF <- ldply(sppnames, function(x) make.dat(x, biomN = 'N')) %>%
-    rename(N = val)
+#ALLoutput.N.DF <- ldply(sppnames, function(x) make.dat(x, biomN = 'N')) %>%
+#    rename(N = val)
 
 ## Graph biomass
 ggplot(ALLoutput.biom.DF, aes(as.numeric(rep), g, colour = stage)) +
@@ -1122,7 +1143,7 @@ rel.abund.trends <- ggplot(mean_end, aes(year, mean.rel.abund, colour = species,
 rel.abund.trends +
     geom_pointrange(aes(y = obs.mean.rel.abund, ymin = obs.mean.rel.abund - 2*obs.se.rel.abund, ymax = obs.mean.rel.abund + 2*obs.se.rel.abund), size = .1, show.legend = FALSE)
 
-ggsave('export/multi-spp.pdf', width = 4, height = 6)
+ggsave('export/multi-spp2.pdf', width = 4, height = 6)
 
 
 
