@@ -630,7 +630,10 @@ for(iter in 1:iterations) {
 ### ----------------------------------------------------------------------------
 ### End of mid loop ############################################################
 ### ----------------------------------------------------------------------------
-                      
+
+## Saving image here as been having trouble in next steps
+save.image()
+
 ## OUTPUTS ---------------------------------------------------------------------
 ################################################################################
 
@@ -723,9 +726,6 @@ repdf <- left_join(totn, repdf)
 
 ## calculating relative abundance
 repdf <- mutate(repdf, rel.abund = abund/tot.abund)
-
-## Saving image here as been having trouble in next steps
-save.image()
 
 ## Taking mean results to cf w/ observed data
 means <- repdf %>%
@@ -836,6 +836,8 @@ mean_end %>%
                               method = 'pearson')$p.value
               )
 
+## Saving current state
+save.image()
 
 ### Local Variables:
 ### eval: (orgstruct-mode 1)
