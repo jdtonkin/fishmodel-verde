@@ -300,13 +300,14 @@ fec.list <- rep(list(fec.vector), 7)
 ## Assigning names to each vector from sppnames vector
 names(fec.list) <- sppnames
 
-
-## Mid loop ###############################################################################
+### ----------------------------------------------------------------------------
+### Mid loop ###################################################################
+### ----------------------------------------------------------------------------
 ## Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
 for(iter in 1:iterations) {
 
-    ## USE THIS to examine different flow year types ++++++++++++++++++++++++++++++++++++++++++++++++++++  
-    ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ## USE THIS to examine different flow year types +++++++++++++++++++++++++++ 
+    ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
                                          # # All 2010 SPflood + SUflood years 
                                          # z <- rep(47, 84)
@@ -326,17 +327,20 @@ for(iter in 1:iterations) {
                                          # # Medflood
                                          # z <- rep(25, 84)
     
-    ## Need to read in initial biom every time so starting biomass is reset each iteration
-    ##  N gives the total number of individuals for each age class.
-    ##   Initially here, this is found by multiplying the number of g occupied by a given class
-    ##   by the density per g
-    ##   biom = g/m3
-    ##   den = indiv/g
+    ## Need to read in initial biom every time so starting biomass is reset each
+    ## iteration
+    ## N gives the total number of individuals for each age class.
+    ## Initially here, this is found by multiplying the number of g occupied by
+    ## a given class by the density per g
+    ## biom = g/m3
+    ## den = indiv/g
     
-    ## To have different initial starting population sizes for each iteration, taking biom of stage 3 from negative binomial
-    ##   distribution, where the parameter (lambda = mean) and K (dispersion) is calculated 
-    ##   from mean and variance in abundance across seven sites in Verde River from 94-08, and scaled to biomass from Gibson 2012 survey 
-    ##   in file "Rinne Verde River Data 1994-2008-.xlsx"
+    ## To have different initial starting population sizes for each iteration,
+    ## taking biom of stage 3 from negative binomial distribution, where the
+    ## parameter (lambda = mean) and K (dispersion) is calculated from mean and
+    ## variance in abundance across seven sites in Verde River from 94-08, and
+    ## scaled to biomass from Gibson 2012 survey in file:
+    ## "Rinne Verde River Data 1994-2008-.xlsx"
     
     biomCACL <- c(biomCACL1, biomCACL2, rnbinom(1, size = 1.52, mu = 5284)) 
     
@@ -351,11 +355,13 @@ for(iter in 1:iterations) {
     biomCYLU <- c(biomCYLU1, biomCYLU2, rnbinom(1, 1.78, mu = 238)) 
     
     biomAMNA <- c(biomAMNA1, biomAMNA2, rnbinom(1, 0.36, mu = 1306))
-    
-    ## Inner loop #############################################################################
+
+### ----------------------------------------------------------------------------
+### Inner loop #################################################################
+### ----------------------------------------------------------------------------
     for(i in 1:count) {
 
-        ## CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 YEARS 
+        ## CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 Y 
         y = i # follow flow record sequence
         ##y = z[i] # to examine specific flow year type defined by z above
 
@@ -924,9 +930,6 @@ for(iter in 1:iterations) {
         }
         
         
-
-        #map2(.x = output.biom.list, .y = names(output.biom.list), ~ get(paste0('biom', .y)))
-
         
         ## CACL
         ## CACLoutput.biom[i,1:3] <- biomCACL # array of biomass of each age class for each yr projected. biomCACL = total biomass for each age class
@@ -999,8 +1002,9 @@ for(iter in 1:iterations) {
         flowresults$drought[i] <- drought[y]
 
         
-        ## MATRIX MULTIPLICATION ------------------------------------------------------------------
-        ## can include rescue function for each with 0.5 chance of reach being colonized by 2 individuals
+        ## MATRIX MULTIPLICATION -----------------------------------------------
+        ## can include rescue function for each with 0.5 chance of reach being
+        ## colonized by 2 individuals
         ## ## CACL
         ## biomCACL <- ACACL %*% biomCACL # ACACL is transition matrix, biomCACL = total biomass for each age class,
 
@@ -1049,7 +1053,10 @@ for(iter in 1:iterations) {
         }
         
         
-    } # End of inner loop ####################################################################
+    }
+### ----------------------------------------------------------------------------
+### End of inner loop ##########################################################
+### ----------------------------------------------------------------------------
 
     ## Mean values for each iteration run over each sequence of years
     ## GESPoutput.N[31:45, 2:3] to compare 94-08 with stage 2 and stage 3 added together
@@ -1076,25 +1083,29 @@ for(iter in 1:iterations) {
     ##           output.N.list$AMNA[,2:3]), 1, sum)
 
         
-    ## Caculating Total.N for each year, and adding it to total.N data frame with however many iterations run.
+    ## Caculating Total.N for each year, and adding it to total.N data frame
+    ## with however many iterations run.
     ## Total does not incl. juveniles.
-    ## map is purrr version of lapply. Can pass fn using ~ and .x instead of function(x) x
-    ## Gets list output of stages 2:3 for ea spp, then cbinds them all together, then caclcs sum. 
+    ## map is purrr version of lapply. Can pass fn using ~ and .x instead of
+    ## function(x) x
+    ## Gets list output of stages 2:3 for ea spp, then cbinds them all together,
+    ## then calcs sum. 
     Total.N[,iter] <- map(output.N.list, ~ .x[,2:3]) %>%
         do.call('cbind', .) %>%
         apply(1, sum)
 
+}
+### ----------------------------------------------------------------------------
+### End of mid loop ############################################################
+### ----------------------------------------------------------------------------
+                      
 
-} # End of mid loop ######################################################################
-## ########################################################################################
 
-
-
-## OUTPUTS --------------------------------------------------------------------------------
-## ########################################################################################
+## OUTPUTS ---------------------------------------------------------------------
+################################################################################
 
 ## FINAL iteration data to examine plots ---------------------------------------
-## Compiling abundance and biomass outputs into single dfs ----------------------------------------------------
+## Compiling abundance and biomass outputs into single dfs ---------------------
 
 ### OLD
 ## Function to make longform dataframes of biomass and abundance  
@@ -1124,8 +1135,8 @@ for(iter in 1:iterations) {
 
 ## NEW
 ## Biomass
-## Compiling df from output.biom.list, renaming cols to stages, adding a replicate col
-## and gathering into long form
+## Compiling df from output.biom.list, renaming cols to stages, adding a
+## replicate col and gathering into long form
 ALLoutput.biom.DF <- ldply(output.biom.list, function(x) {
     as.data.frame(x) %>%
         rename(S1 = V1, S2 = V2, S3 = V3) %>%
@@ -1181,8 +1192,6 @@ ggplot(flowresults.l, aes(rep, value)) +
 ##---------------------------------------------------------------------------------------------------------
 ## Reading in observed field data
 Verde <- read.csv("data/Rel_Abu_Verde_94-08.csv", header = T) 
-head(Verde)
-str(Verde)
 
 ## renaming as observed, removing tot abund, and renaming cols
 observed <- Verde %>%
@@ -1190,35 +1199,25 @@ observed <- Verde %>%
            species = SppCode,
            obs.mean.rel.abund = MeanRelAbu,
            obs.se.rel.abund = SERelAbu)
-head(observed)
-str(observed)
+
 #observed$year <- as.numeric(as.character(observed$year))
 
 ## turning replist into a df
 repdf <- ldply(replist, function(x) {
     adply(x, c(1,2,3))
 })
-head(repdf)
-str(repdf)
 
 names(repdf) <- c('species', 'year', 'stage', 'rep', 'abund')
 repdf <- filter(repdf, stage != 'S1')
 repdf$year <- as.numeric(as.character(repdf$year))
-str(repdf)
-head(repdf)
-tail(repdf)
 
-str(Total.N)
-head(Total.N)
+
 totn <- adply(Total.N, c(1,2))
 names(totn) <- c('year', 'rep', 'tot.abund')
 totn$year <- as.numeric(as.character(totn$year))
-str(totn)
-head(totn)
+
 
 repdf <- left_join(totn, repdf)
-str(repdf)
-head(repdf)
 
 repdf <- mutate(repdf, rel.abund = abund/tot.abund)
 
@@ -1298,102 +1297,64 @@ ggsave('export/multi-spp2.pdf', width = 4, height = 6)
 
 
                                          # LECY
-LECY_stage1 <- apply(replist$LECY[,1,], 1, mean)
-LECY_stage2 <- apply(replist$LECY[,2,], 1, mean)
-LECY_stage3 <- apply(replist$LECY[,3,], 1, mean)
+## LECY_stage1 <- apply(replist$LECY[,1,], 1, mean)
+## LECY_stage2 <- apply(replist$LECY[,2,], 1, mean)
+## LECY_stage3 <- apply(replist$LECY[,3,], 1, mean)
 
-plot(years, LECY_stage3, ylim = c(0, 70), xlab = NA, ylab = NA,
-     type = "o", pch = 19, lwd = 2, cex = 1.5, col = "blue")
-lines(years, LECY_stage1, type = "o", pch = 19, lwd = 2, cex = 1.5, col = "red")
-lines(years, LECY_stage2, type = "o", pch = 19, lwd =2, cex = 1.5, col = "green3")
-                                         #legend(locator(1), legend = c("S1", "S2", "S3"), pch = 19, col = c("red", "green3", "blue"), xpd = NA)
+## plot(years, LECY_stage3, ylim = c(0, 70), xlab = NA, ylab = NA,
+##      type = "o", pch = 19, lwd = 2, cex = 1.5, col = "blue")
+## lines(years, LECY_stage1, type = "o", pch = 19, lwd = 2, cex = 1.5, col = "red")
+## lines(years, LECY_stage2, type = "o", pch = 19, lwd =2, cex = 1.5, col = "green3")
+##                                          #legend(locator(1), legend = c("S1", "S2", "S3"), pch = 19, col = c("red", "green3", "blue"), xpd = NA)
 
-LECY_mean_run <- apply(replist$LECY[,2:3,], 1, mean)
-LECY_sd_run <- apply(replist$LECY[,2:3,], 1, sd)
-LECY_SE_run <- LECY_sd_run/sqrt(iterations)
+## LECY_mean_run <- apply(replist$LECY[,2:3,], 1, mean)
+## LECY_sd_run <- apply(replist$LECY[,2:3,], 1, sd)
+## LECY_SE_run <- LECY_sd_run/sqrt(iterations)
 
-LECY_RA <- apply(replist$LECY[,2:3,], c(1,3), sum)/Total.N # check: Total.N[1,,10] = 594.689
-LECY_RelAbu <- apply(LECY_RA, 1, mean)
-LECY_RA_sd <- apply(LECY_RA, 1, sd)
-LECY_RA_SE <- LECY_RA_sd/sqrt(iterations)
+## LECY_RA <- apply(replist$LECY[,2:3,], c(1,3), sum)/Total.N # check: Total.N[1,,10] = 594.689
+## LECY_RelAbu <- apply(LECY_RA, 1, mean)
+## LECY_RA_sd <- apply(LECY_RA, 1, sd)
+## LECY_RA_SE <- LECY_RA_sd/sqrt(iterations)
 
-plot(years[31:54], LECY_RelAbu[31:54], type = "l", main = "LECY", ylim = c(0, 0.30), cex.axis = 2, xlab = NA, ylab = NA)
-polygon(c(years[31:54], rev(years[31:54])), c((LECY_RelAbu[31:54] - 2*LECY_RA_SE[31:54]), rev(LECY_RelAbu[31:54] + 2*LECY_RA_SE[31:54])), col = "#fee0b6", border = F)
-lines(years[31:54], LECY_RelAbu[31:54], lwd = 2, col = "#f1a340")
-points(Verde$Year[Verde$SppCode == "LECY"], Verde$MeanRelAbu[Verde$SppCode == "LECY"], pch=19, cex = 1.5)
-arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] - 2*Verde$SERelAbu[Verde$SppCode == "LECY"], 
-       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] + 2*Verde$SERelAbu[Verde$SppCode == "LECY"], code = 3, length = 0.1, angle = 90, lwd = 2)
-
-
-                                         # MIDO
-MIDO_mean_run <- apply(replist$MIDO[,2:3,], 1, mean)
-MIDO_sd_run <- apply(replist$MIDO[,2:3,], 1, sd)
-MIDO_SE_run <- MIDO_sd_run/sqrt(iterations)
-
-MIDO_RA <- apply(replist$MIDO[,2:3,], c(1,3), sum)/Total.N # check: Total.N[1,,10] = 594.689
-MIDO_RelAbu <- apply(MIDO_RA, 1, mean)
-MIDO_RA_sd <- apply(MIDO_RA, 1, sd)
-MIDO_RA_SE <- MIDO_RA_sd/sqrt(iterations)
-
-plot(years[31:54], MIDO_RelAbu[31:54], type = "l", main = "MIDO", ylim = c(0, 0.5), cex.axis = 2, xlab = NA, ylab = NA)
-polygon(c(years[31:54], rev(years[31:54])), c((MIDO_RelAbu[31:54] - 2*MIDO_RA_SE[31:54]), rev(MIDO_RelAbu[31:54] + 2*MIDO_RA_SE[31:54])), col = "#fee0b6", border = F)
-lines(years[31:54], MIDO_RelAbu[31:54], lwd=2, col = "#f1a340")
-points(Verde$Year[Verde$SppCode == "MIDO"], Verde$MeanRelAbu[Verde$SppCode == "MIDO"], pch=19, cex = 1.5)
-arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "MIDO"] - 2*Verde$SERelAbu[Verde$SppCode == "MIDO"], 
-       x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "MIDO"] + 2*Verde$SERelAbu[Verde$SppCode == "MIDO"], code = 3, length = 0.1, angle = 90, lwd = 2)
-
-NN_Abu <- apply(cbind(AMNA_RelAbu[31:54], CYLU_RelAbu[31:54], LECY_RelAbu[31:54], MIDO_RelAbu[31:54]),1,sum)
-N_Abu <- apply(cbind(CACL_RelAbu[31:54], CAIN_RelAbu[31:54], GIRO_RelAbu[31:54]),1,sum)
-SE_NN <- apply(cbind(AMNA_RelAbu[31:54], CYLU_RelAbu[31:54], LECY_RelAbu[31:54], MIDO_RelAbu[31:54]),1, sd)/sqrt(4)
-SE_N <- apply(cbind(CACL_RelAbu[31:54], CAIN_RelAbu[31:54], GIRO_RelAbu[31:54]),1, sd)/sqrt(4)
-SE_dif <- sd(N_Abu - NN_Abu)/length(N_Abu)
-
-N_Abu/NN_Abu
-
-plot(years[31:54], N_Abu/NN_Abu, type = "l", ylim = c(0, 3), cex.axis = 2, lwd = 3, xlab = n, ylab = n)
-abline(h = 1, lty = 2)
-
-plot(years[31:54], N_Abu-NN_Abu, type = "l", ylim = c(-1, 1), cex.axis = 2, lwd = 3, xlab = n, ylab = n)
-polygon(c(years[31:54], rev(years[31:54])), 
-        c((N_Abu-NN_Abu - 2*SE_dif), rev(N_Abu-NN_Abu + 2*SE_dif)), col = "grey75", border = F)
-lines(years[31:54], N_Abu-NN_Abu, lwd=2)
-abline(h = 0, lty = 2)
+## plot(years[31:54], LECY_RelAbu[31:54], type = "l", main = "LECY", ylim = c(0, 0.30), cex.axis = 2, xlab = NA, ylab = NA)
+## polygon(c(years[31:54], rev(years[31:54])), c((LECY_RelAbu[31:54] - 2*LECY_RA_SE[31:54]), rev(LECY_RelAbu[31:54] + 2*LECY_RA_SE[31:54])), col = "#fee0b6", border = F)
+## lines(years[31:54], LECY_RelAbu[31:54], lwd = 2, col = "#f1a340")
+## points(Verde$Year[Verde$SppCode == "LECY"], Verde$MeanRelAbu[Verde$SppCode == "LECY"], pch=19, cex = 1.5)
+## arrows(x0 = c(1994:2008), y0 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] - 2*Verde$SERelAbu[Verde$SppCode == "LECY"], 
+##        x1 = c(1994:2008), y1 = Verde$MeanRelAbu[Verde$SppCode == "LECY"] + 2*Verde$SERelAbu[Verde$SppCode == "LECY"], code = 3, length = 0.1, angle = 90, lwd = 2)
 
 
+## NN_Abu <- apply(cbind(AMNA_RelAbu[31:54], CYLU_RelAbu[31:54], LECY_RelAbu[31:54], MIDO_RelAbu[31:54]),1,sum)
+## N_Abu <- apply(cbind(CACL_RelAbu[31:54], CAIN_RelAbu[31:54], GIRO_RelAbu[31:54]),1,sum)
+## SE_NN <- apply(cbind(AMNA_RelAbu[31:54], CYLU_RelAbu[31:54], LECY_RelAbu[31:54], MIDO_RelAbu[31:54]),1, sd)/sqrt(4)
+## SE_N <- apply(cbind(CACL_RelAbu[31:54], CAIN_RelAbu[31:54], GIRO_RelAbu[31:54]),1, sd)/sqrt(4)
+## SE_dif <- sd(N_Abu - NN_Abu)/length(N_Abu)
+
+## N_Abu/NN_Abu
+
+## plot(years[31:54], N_Abu/NN_Abu, type = "l", ylim = c(0, 3), cex.axis = 2, lwd = 3, xlab = n, ylab = n)
+## abline(h = 1, lty = 2)
+
+## plot(years[31:54], N_Abu-NN_Abu, type = "l", ylim = c(-1, 1), cex.axis = 2, lwd = 3, xlab = n, ylab = n)
+## polygon(c(years[31:54], rev(years[31:54])), 
+##         c((N_Abu-NN_Abu - 2*SE_dif), rev(N_Abu-NN_Abu + 2*SE_dif)), col = "grey75", border = F)
+## lines(years[31:54], N_Abu-NN_Abu, lwd=2)
+## abline(h = 0, lty = 2)
 
 
-str(replist$CACL)
-str(CACL_RA)
-write.csv
-
-replist %>% map(head)
-replist %>% lapply(head)
-str(replist)
-
-
-means
-mean_end
-
-MIDO_RelAbu
 
 
 ## Create a df w/ model and observed relative abundances from 1994-2008 to test
 ## correlation between them
-
-
-
-
-spearman.results <-
-
-    mean_end %>% 
+spearman.results <- mean_end %>% 
     filter(year >= 1994, year <= 2008) %>%
     group_by(year) %>%
     summarise(rho = cor.test(mean.rel.abund,
                              obs.mean.rel.abund,
                              method = 'spearman')$estimate,
               pval = cor.test(mean.rel.abund,
-                             obs.mean.rel.abund,
-                             method = 'spearman')$p.value
+                              obs.mean.rel.abund,
+                              method = 'spearman')$p.value
               )
  
 
@@ -1401,59 +1362,83 @@ spearman.results <-
                                         # Correlation tests
 
 
-Model.RelAbu <- rbind(AMNA_RelAbu, CACL_RelAbu, CAIN_RelAbu, CYLU_RelAbu, GIRO_RelAbu, LECY_RelAbu, MIDO_RelAbu)
+## Model.RelAbu <- rbind(AMNA_RelAbu, CACL_RelAbu, CAIN_RelAbu, CYLU_RelAbu, GIRO_RelAbu, LECY_RelAbu, MIDO_RelAbu)
 
 
-spearman.cor <- c(
-    cor(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spearman"),
-    cor(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spearman"),
-    cor(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spearman"),
-    cor(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spearman"),
-    cor(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spearman"),
-    cor(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spearman"),
-    cor(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spearman"),
-    cor(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spearman"),
-    cor(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spearman"),
-    cor(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spearman"),
-    cor(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spearman"),
-    cor(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spearman"),
-    cor(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spearman"),
-    cor(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spearman"),
-    cor(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spearman"))
-spear <- cbind(Verde$Year[1:15], spearman.cor)
-round(spear, digits = 2)
+## spearman.cor <- c(
+##     cor(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spearman"),
+##     cor(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spearman"),
+##     cor(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spearman"),
+##     cor(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spearman"),
+##     cor(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spearman"),
+##     cor(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spearman"),
+##     cor(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spearman"),
+##     cor(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spearman"),
+##     cor(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spearman"),
+##     cor(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spearman"),
+##     cor(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spearman"),
+##     cor(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spearman"),
+##     cor(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spearman"),
+##     cor(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spearman"),
+##     cor(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spearman"))
+## spear <- cbind(Verde$Year[1:15], spearman.cor)
+## round(spear, digits = 2)
 
-head(mean_end)
+## head(mean_end)
 
 
-spearman.cor.test <- c(
-    cor.test(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spearman")$p.value, #p-value = 0.0482, rho = 0.786
-    cor.test(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spearman")$p.value,
-    cor.test(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spearman")$p.value)
+## spearman.cor.test <- c(
+##     cor.test(filter(Verde, Year == 1994)$MeanRelAbu, Model.RelAbu[,"1994"], method = "spearman")$p.value, #p-value = 0.0482, rho = 0.786
+##     cor.test(filter(Verde, Year == 1995)$MeanRelAbu, Model.RelAbu[,"1995"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 1996)$MeanRelAbu, Model.RelAbu[,"1996"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 1997)$MeanRelAbu, Model.RelAbu[,"1997"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 1998)$MeanRelAbu, Model.RelAbu[,"1998"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 1999)$MeanRelAbu, Model.RelAbu[,"1999"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2000)$MeanRelAbu, Model.RelAbu[,"2000"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2001)$MeanRelAbu, Model.RelAbu[,"2001"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2002)$MeanRelAbu, Model.RelAbu[,"2002"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2003)$MeanRelAbu, Model.RelAbu[,"2003"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2004)$MeanRelAbu, Model.RelAbu[,"2004"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2005)$MeanRelAbu, Model.RelAbu[,"2005"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2006)$MeanRelAbu, Model.RelAbu[,"2006"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2007)$MeanRelAbu, Model.RelAbu[,"2007"], method = "spearman")$p.value,
+##     cor.test(filter(Verde, Year == 2008)$MeanRelAbu, Model.RelAbu[,"2008"], method = "spearman")$p.value)
 
-spear.test <-  cbind(Verde$Year[1:15],spearman.cor.test)
-round(spear.test, digits = 3)
+## spear.test <-  cbind(Verde$Year[1:15],spearman.cor.test)
+## round(spear.test, digits = 3)
 
-round(cbind(Verde$Year[1:15], spearman.cor, spearman.cor.test), 3)
+## round(cbind(Verde$Year[1:15], spearman.cor, spearman.cor.test), 3)
 
                                          # Species level correlations
+
+
+## Overall correlation between mean observed and modeled relative abund. 
+mod.obs.mean.by.spp <- mean_end %>%
+    filter(year >= 1994, year <= 2008) %>%
+    group_by(species) %>%
+    summarise(model = mean(mean.rel.abund),
+              obs = mean(obs.mean.rel.abund)) 
+    
+mod.obs.mean.by.spp %>%
+    summarise(rho = cor.test(model,
+                             obs,
+                             method = 'spearman')$estimate,
+              pval = cor.test(model,
+                              obs,
+                              method = 'spearman')$p.value
+              )
+
+================================
+WHAT IS Verde$TotRelAbu?????????
+================================
+
+## Verde.spp.meanRelAbu <- aggregate(Verde$TotRelAbu, by = list(Verde$SppCode), FUN = mean)
+## model.spp.meanRelAbu <- rbind(mean(AMNA_RA), mean(CACL_RA), mean(CAIN_RA), mean(CYLU_RA), mean(GIRO_RA), mean(LECY_RA), mean(MIDO_RA))
+## cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu, method = "spearman")
+## cor.test(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu, method = "spearman")
+
 head(Verde)
-Verde.spp.meanRelAbu <- aggregate(Verde$TotRelAbu, by = list(Verde$SppCode), FUN = mean)
-model.spp.meanRelAbu <- rbind(mean(AMNA_RA), mean(CACL_RA), mean(CAIN_RA), mean(CYLU_RA), mean(GIRO_RA), mean(LECY_RA), mean(MIDO_RA))
-cor(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu, method = "spearman")
-cor.test(Verde.spp.meanRelAbu$x, model.spp.meanRelAbu, method = "spearman")
+head(observed)
 
 AMNA_RelAbu[31:45]
 Verde.tot <- Verde[,-c(4,5)]
@@ -1481,76 +1466,3 @@ rownames(spp.cor.test) <- c("AMNA", "CACL", "CAIN", "CYLU", "GIRO", "LECY", "MID
 round(spp.cor.test, digits = 2)
 round(cbind(spp.cor, spp.cor.test[,1]), digits = 2)
 
-                                         # K Sensitivity analysis--------------------------------------------------------------------------------------------
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K28596.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K33362.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K38128.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K42894.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K47660.csv") #mean(Model.RelAbu["AMNA_RelAbu",])
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K52426.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K57192.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K61958.csv")
-                                         # write.csv(Model.RelAbu, file = "output/K_sensitivity/RelAbu_K66724.csv")
-
-RelAbu_47660 <- read.csv("output/K_sensitivity/RelAbu_K47660.csv", row.names = 1)
-RelAbu_52426 <- read.csv("output/K_sensitivity/RelAbu_K52426.csv", row.names = 1)
-RelAbu_57192 <- read.csv("output/K_sensitivity/RelAbu_K57192.csv", row.names = 1)
-RelAbu_61958 <- read.csv("output/K_sensitivity/RelAbu_K61958.csv", row.names = 1)
-RelAbu_66724 <- read.csv("output/K_sensitivity/RelAbu_K66724.csv", row.names = 1)
-RelAbu_42894 <- read.csv("output/K_sensitivity/RelAbu_K42894.csv", row.names = 1)
-RelAbu_38128 <- read.csv("output/K_sensitivity/RelAbu_K38128.csv", row.names = 1)
-RelAbu_33362 <- read.csv("output/K_sensitivity/RelAbu_K33362.csv", row.names = 1)
-RelAbu_28596 <- read.csv("output/K_sensitivity/RelAbu_K28596.csv", row.names = 1)
-
-perdif_plus10 <- ((RelAbu_52426 - RelAbu_47660)/RelAbu_47660)*100
-perdif_plus20 <- ((RelAbu_57192 - RelAbu_47660)/RelAbu_47660)*100
-perdif_plus30 <- ((RelAbu_61958 - RelAbu_47660)/RelAbu_47660)*100
-perdif_plus40 <- ((RelAbu_66724 - RelAbu_47660)/RelAbu_47660)*100
-perdif_null <- ((RelAbu_47660 - RelAbu_47660)/RelAbu_47660)*100
-perdif_minus10 <- ((RelAbu_42894 - RelAbu_47660)/RelAbu_47660)*100
-perdif_minus20 <- ((RelAbu_38128 - RelAbu_47660)/RelAbu_47660)*100
-perdif_minus30 <- ((RelAbu_33362 - RelAbu_47660)/RelAbu_47660)*100
-perdif_minus40 <- ((RelAbu_28596 - RelAbu_47660)/RelAbu_47660)*100
-
-                                         #AMNA.perdif_plus10 <- mean(as.matrix(perdif_plus10["AMNA_RelAbu",]), na.rm = T)
-
-spp_mean_minus40 <- apply(as.matrix(perdif_minus40), 1, mean, na.rm = T)
-spp_mean_minus30 <- apply(as.matrix(perdif_minus30), 1, mean, na.rm = T)
-spp_mean_minus20 <- apply(as.matrix(perdif_minus20), 1, mean, na.rm = T)
-spp_mean_minus10 <- apply(as.matrix(perdif_minus10), 1, mean, na.rm = T)
-spp_mean_null <- apply(as.matrix(perdif_null), 1, mean, na.rm =T)
-spp_mean_plus10 <- apply(as.matrix(perdif_plus10), 1, mean, na.rm = T)
-spp_mean_plus20 <- apply(as.matrix(perdif_plus20), 1, mean, na.rm = T)
-spp_mean_plus30 <- apply(as.matrix(perdif_plus30), 1, mean, na.rm = T)
-spp_mean_plus40 <- apply(as.matrix(perdif_plus40), 1, mean, na.rm = T)
-
-perdiff <- rbind(spp_mean_minus40, spp_mean_minus30, spp_mean_minus20, spp_mean_minus10, spp_mean_null,
-                 spp_mean_plus10, spp_mean_plus20, spp_mean_plus30, spp_mean_plus40)
-
-                                         #plot(1:2, perdiff[,"AMNA_RelAbu"])
-
-par(mfrow = c(1,1), mar=c(5,4,4,2))
-
-
-plot(seq(-40, 40, 10),
-     perdiff[,"AMNA_RelAbu"],
-     ylim = c(-60, 70), bty = "l",
-     xlab = "% change in K from 47660", ylab = "% change in RelAbu",
-     pch = 21, col = "#b35806", bg = "#b35806", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"CACL_RelAbu"],
-       pch = 21, col = "#f1a340", bg = "#f1a340", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"CAIN_RelAbu"],
-       pch = 21, col = "#fee0b6", bg = "#fee0b6", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"CYLU_RelAbu"],
-       pch = 21, col = "#252525", bg = "#252525", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"GIRO_RelAbu"],
-       pch = 21, col = "#d8daeb", bg = "#d8daeb", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"LECY_RelAbu"],
-       pch = 21, col = "#998ec3", bg = "#998ec3", cex = 1.5)
-points(seq(-40, 40, 10), perdiff[,"MIDO_RelAbu"],
-       pch = 21, col = "#542788", bg = "#542788", cex = 1.5)
-abline(h=5, lty=2)
-abline(h=-5, lty=2)
-legend(locator(1), legend = c("AMNA","CACL","CAIN", "CYLU", "GIRO", "LECY", "MIDO"), pch = c(rep(21,7)), xpd = NA,
-       col = c("#b35806", "#f1a340", "#fee0b6", "#252525", "#d8daeb", "#998ec3", "#542788"),
-       pt.bg = c("#b35806", "#f1a340", "#fee0b6", "#252525", "#d8daeb", "#998ec3", "#542788"))
