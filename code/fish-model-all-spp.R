@@ -11,7 +11,7 @@ library(plyr)
 library(tidyverse)
 library(popbio)
 
-## SETUP -----------------------------------------------------------------------
+## * SETUP ---------------------------------------------------------------------
 
 rm(list = ls()) # clearing the workspace 
 
@@ -141,7 +141,7 @@ nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag,
                           Sufl = flowdata$SuFloodMag) 
 
 
-## ITERATION PARAMETERS --------------------------------------------------------
+## * ITERATION PARAMETERS ------------------------------------------------------
 ## Setting up arrays/vectors to fill with data from loops
 
 ## Mid loop details ------------------------------------------------------------
@@ -1427,7 +1427,6 @@ mod.obs.mean.by.spp %>%
                               obs,
                               method = 'spearman')$p.value
               )
-
 ================================
 WHAT IS Verde$TotRelAbu?????????
 ================================
@@ -1466,3 +1465,8 @@ rownames(spp.cor.test) <- c("AMNA", "CACL", "CAIN", "CYLU", "GIRO", "LECY", "MID
 round(spp.cor.test, digits = 2)
 round(cbind(spp.cor, spp.cor.test[,1]), digits = 2)
 
+
+### Local Variables:
+### eval: (orgstruct-mode 1)
+### orgstruct-heading-prefix-regexp: "## "
+### End:
