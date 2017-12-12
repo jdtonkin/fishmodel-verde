@@ -548,12 +548,12 @@ for(iter in 1:iterations) {
                    (1 -
                     (SU_highflood[y] *
                      get(paste0('STMort', nm)) *
-                     get(paste0(nm, '_J_HF')))
+                     get(paste0(nm, '_J_SUHF')))
                    ) *
                    (1 -
                     (SP_highflood[y] *
                      get(paste0('STMort', nm)) *
-                     get(paste0(nm, '_J_HF')))
+                     get(paste0(nm, '_J_SPHF')))
                    ) *
                    (1 -
                     (medflood[y] *
@@ -585,12 +585,12 @@ for(iter in 1:iterations) {
                    (1 -
                     (SU_highflood[y] *
                      get(paste0('STMort', nm)) *
-                     get(paste0(nm, '_A_HF')))
+                     get(paste0(nm, '_A_SUHF')))
                    ) *
                    (1 -
                     (SP_highflood[y] *
                      get(paste0('STMort', nm)) *
-                     get(paste0(nm, '_A_HF')))
+                     get(paste0(nm, '_A_SPHF')))
                    ) *
                    (1 -
                     (medflood[y] *
@@ -620,12 +620,12 @@ for(iter in 1:iterations) {
             (1 -
              (SU_highflood[y] *
               get(paste0('STMort', nm)) *
-              get(paste0(nm, '_A_HF')))
+              get(paste0(nm, '_A_SUHF')))
             ) *
             (1 -
              (SP_highflood[y] *
               get(paste0('STMort', nm)) *
-              get(paste0(nm, '_A_HF')))
+              get(paste0(nm, '_A_SPHF')))
             ) *
             (1 -
              (medflood[y] *
