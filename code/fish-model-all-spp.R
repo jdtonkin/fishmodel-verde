@@ -20,7 +20,7 @@ rm(list = ls()) # clearing the workspace
 flowdata <- read.csv("data/flowdata_Verde.csv") 
 
 ## str(flowdata)
-## head(flowdata)
+head(flowdata)
 ## FloodMag - magnitude of flood in cfs
 ## BaseDur - baseflow duration in days
 ## flooddate is peak dates of all floods (Oct 1 = 1) because using water year
@@ -109,6 +109,7 @@ drought <- drought_func(Spfl = flowdata$SpFloodMag,
 nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag,
                           BD = flowdata$BaseDur,
                           Sufl = flowdata$SuFloodMag) 
+
 
 ## * ITERATION PARAMETERS ------------------------------------------------------
 ## Setting up arrays/vectors to fill with data from loops
@@ -691,6 +692,21 @@ flowresults.l <- flowresults %>%
 ggplot(flowresults.l, aes(rep, value)) +
     geom_point() + geom_path() +
     facet_wrap(~metric)
+
+## Checking to see if flows used in actual model runs match those input.
+## This current run uses natural flow only. 
+flowtest <- data.frame(cbind(SP_highflood,
+                             SU_highflood,
+                             medflood,
+                             drought,
+                             nonevent))
+flowtest
+flowresults
+flowtest[,1]-flowresults[,1]
+flowtest[,2]-flowresults[,2]
+flowtest[,3]-flowresults[,3]
+flowtest[,4]-flowresults[,4]
+flowtest[,5]-flowresults[,5]
 
 ## -----------------------------------------------------------------------------
 ## Plot summary from all iterations of model run and compare to relative

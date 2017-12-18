@@ -67,4 +67,4 @@ flowdata_Verde2
 flowdata_Verde <- flowdata_Verde2[,-c(3, 4, 5, 6, 8, 11, 12, 14)]
 colnames(flowdata_Verde) <- c("Year", "SpFloodMag", "SpFloodDate", "BaseDur", "SuFloodMag", "SuFloodDate")
 flowdata_Verde
-### write.csv(flowdata_Verde, file = "data/flowdata_Verde.csv")                                  
+write.csv(flowdata_Verde, file = "data/flowdata_Verde_test.csv")                                  
