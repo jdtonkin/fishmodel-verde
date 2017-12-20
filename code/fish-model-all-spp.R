@@ -15,6 +15,7 @@ library(popbio)
 
 rm(list = ls()) # clearing the workspace 
 
+===== can delete
 ## bringing in flow data
 ## Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
 flowdata <- read.csv("data/flowdata_Verde.csv") 
@@ -24,10 +25,10 @@ head(flowdata)
 ## FloodMag - magnitude of flood in cfs
 ## BaseDur - baseflow duration in days
 ## flooddate is peak dates of all floods (Oct 1 = 1) because using water year
+=====
 
 count <- 54 # 54 years in flow record, if count = 45 goes to 2008 
-iterations <- 1000 # number of replicate projections to run (mid loop)
-
+iterations <- 10 # number of replicate projections to run (mid loop)
 
 ## Modifiers
 modifiers <- read.csv('data/modifiers-all-spp.csv')
@@ -75,6 +76,7 @@ K = 47660 # mean for 1-km reach across 6 replicate reaches
 ## Loading functions from functions.R file--------------------------------------
 source('code/functions.R')
 
+=== can delete
 ## Flow thresholds -------------------------------------------------------------
 
 ## Magnitude of peak flow over which is considered a large flood event
@@ -110,6 +112,7 @@ nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag,
                           BD = flowdata$BaseDur,
                           Sufl = flowdata$SuFloodMag) 
 
+====
 
 ## * ITERATION PARAMETERS ------------------------------------------------------
 ## Setting up arrays/vectors to fill with data from loops
@@ -117,6 +120,7 @@ nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag,
 ## Mid loop details ------------------------------------------------------------
 ## 'iterations' - number of replicate flow sequences to run for averaging
 
+==== fix this - need years to be auto generated
 years <- as.character(seq(1964, 2017, by = 1))
 stages <- as.character(c("S1", "S2", "S3"))
 
@@ -281,10 +285,12 @@ for(iter in 1:iterations) {
     for(i in 1:count) {
 
         ## CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 Y 
-        y = i # follow flow record sequence
-        ##y = z[i] # to examine specific flow year type defined by z above
-
         ## y is directly taken from flow vector. 
+        ## y = i # follow flow record sequence
+
+        ## Sampling randomly from the flow record
+        y = sample(nrow(flowdata), 1)
+
 
         ## Transition probabilities  -------------------------------------------
         ## G is prob. of transition to next stage
@@ -701,6 +707,9 @@ flowtest <- data.frame(cbind(SP_highflood,
                              drought,
                              nonevent))
 flowtest
+
+apply(flowtest, 1, sum)
+
 flowresults
 flowtest[,1]-flowresults[,1]
 flowtest[,2]-flowresults[,2]
