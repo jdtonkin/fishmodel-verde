@@ -1,9 +1,6 @@
 ## Verde Fish Model
 ## Jane Rogosch, Jono Tonkin, et al.
 ## 01-Mar-17
-## 26-Jul-17
-## 22-Aug-17
-## 17-Oct-17
 
 ## Required libraries
 library(ggplot2)
@@ -34,7 +31,7 @@ for(j in 1:length(modifiers[,1])) {
 }
 
 ## Vital rates
-## Baseline maturation probabiliity, aCACL3 (adult senescence rate)
+## Baseline maturation probability, aCACL3 (adult senescence rate)
 ## Background mortality
 ## Initial volume in grams in 100-m reach
 ## Fecundity based on year type and GSI
@@ -48,7 +45,7 @@ for(k in 1:length(vitalrates[,1])) {
     assign(nam, vitalrates[k,3]) 
 }
 
-## Key -------------------------------------------------------------------------
+## * Key -----------------------------------------------------------------------
 ## CACL (Catostomus clarki) – desert sucker 
 ## GIRO (Gila robusta) – roundtail chub
 ## LECY (Lepomis cyanellus) – green sunfish
@@ -67,7 +64,7 @@ sppnames <- c('CACL', 'GIRO', 'LECY', 'CAIN', 'MIDO', 'CYLU', 'AMNA')
 
 K = 47660 # mean for 1-km reach across 6 replicate reaches
 
-## Loading functions from functions.R file--------------------------------------
+## Loading functions from functions.R file -------------------------------------
 source('code/functions.R')
 
 ## * ITERATION PARAMETERS ------------------------------------------------------
@@ -165,7 +162,7 @@ fec.list <- rep(list(fec.vector), 7)
 names(fec.list) <- sppnames
 
 ### ----------------------------------------------------------------------------
-### Mid loop ###################################################################
+## * Mid loop ##################################################################
 ### ----------------------------------------------------------------------------
 ## Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
 for(iter in 1:iterations) {
@@ -235,7 +232,7 @@ for(iter in 1:iterations) {
                   rnbinom(1, 0.36, mu = 1306))
 
 ### ----------------------------------------------------------------------------
-### Inner loop #################################################################
+## * Inner loop ################################################################
 ### ----------------------------------------------------------------------------
     for(i in 1:count) {
 
@@ -596,7 +593,7 @@ for(iter in 1:iterations) {
 ## Saving image here as been having trouble in next steps
 save.image()
 
-## OUTPUTS ---------------------------------------------------------------------
+## * OUTPUTS -------------------------------------------------------------------
 ################################################################################
 
 ## FINAL iteration data to examine plots ---------------------------------------
@@ -756,7 +753,9 @@ rel.abund.trends +
 
 ggsave('export/multi-spp2.pdf', width = 4, height = 6)
 
-## Correlation tests -----------------------------------------------------------
+## -----------------------------------------------------------------------------
+## * Correlation tests ---------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 ## Create a df w/ model and observed relative abundances from 1994-2008 to test
 ## correlation between them
