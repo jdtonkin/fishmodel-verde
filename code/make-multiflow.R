@@ -1,7 +1,7 @@
 ## This is code to make a list of all possible future flow regimes.
 ## This will then get read into the main model as a list. 
 #rm(list = ls()) # clearing the workspace 
-
+library(plyr)
 library(tidyverse)
 
 ## Loading functions from functions.R file--------------------------------------
@@ -394,17 +394,18 @@ all.scenarios.list <- c(drought.list.u,
                         medflood.list.u,
                         SP_highflood.list.u,
                         SU_highflood.list.u,
-                        SPSU_highflood.list.u)
+                        SPSU_highflood.list.u
+                        )
 
 map(all.scenarios.list, head)
 map(all.scenarios.list, class)
 names(all.scenarios.list)
 
+all.scenarios.list$natural.flow <- natural.flow
 
 ## Save natural flow through to 2017
-saveRDS(natflow_full, 'data/natflow_full.rds')
-
+write.csv(natural.flow, 'data/naturalflow.csv', row.names = FALSE)
 
 ## Save the objects as .rds files - then use loadRDS in other file. 
-saveRDS(flowlist, 'data/flowlist.rds')
+saveRDS(all.scenarios.list, 'data/all_scenarios_list.rds')
 

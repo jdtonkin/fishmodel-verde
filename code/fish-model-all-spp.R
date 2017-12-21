@@ -13,19 +13,13 @@ library(popbio)
 
 ## * SETUP ---------------------------------------------------------------------
 
-rm(list = ls()) # clearing the workspace 
+#rm(list = ls()) # clearing the workspace 
 
-===== can delete
-## bringing in flow data
-## Verde flow data at Paulden 7/17/1963-2017, 54 years continuous
-flowdata <- read.csv("data/flowdata_Verde.csv") 
+## Bringing in flow data
+all.scenarios.list <- readRDS('data/all_scenarios_list.rds')
 
-## str(flowdata)
-head(flowdata)
-## FloodMag - magnitude of flood in cfs
-## BaseDur - baseflow duration in days
-## flooddate is peak dates of all floods (Oct 1 = 1) because using water year
-=====
+## When using natural flow data, just pull it out from the list here
+flowdata <- all.scenarios.list$natural.flow
 
 count <- 54 # 54 years in flow record, if count = 45 goes to 2008 
 iterations <- 10 # number of replicate projections to run (mid loop)
@@ -76,52 +70,13 @@ K = 47660 # mean for 1-km reach across 6 replicate reaches
 ## Loading functions from functions.R file--------------------------------------
 source('code/functions.R')
 
-=== can delete
-## Flow thresholds -------------------------------------------------------------
-
-## Magnitude of peak flow over which is considered a large flood event
-SP_highfloodcutoff = 700
-## SP: Jan 1 - Apr 30 (water_day 93-213).
-## Floods (cfs) at 4-yr recurrence interval or greater (30 times median flow).
-SU_highfloodcutoff = 200
-## SU: May 1 - Sep 30 (Water_day 214-365).
-## Floods (Cfs) at 4-year recurrence interval for summer
-medfloodcutoff = 220
-## SP Floods at bankfull flood, 2.5-yr recurrence interval (10 X median flow)
-## Non-event is same for drought (threshold below rather than above)
-mindroughtlength = 40
-## Threshold length of low-flow in days
-## (greater than 75th percentile of low flow duration) -- determined as number
-## of consecutive days with discharge less than 22 cfs
-## (25th percentile of flows) May 1 - Sep 30
-## This threshold is compared to baseflow duration in any given year --
-## a vector specified in csv (baseflow_dur).
-
-## Defining year types here ----------------------------------------------------
-SP_highflood <- SP_highflood_func(flowdata$SpFloodMag) 
-
-SU_highflood <- SU_highflood_func(flowdata$SuFloodMag)
-
-medflood <- medflood_func(flowdata$SpFloodMag)
-
-drought <- drought_func(Spfl = flowdata$SpFloodMag,
-                        BD = flowdata$BaseDur,
-                        Sufl = flowdata$SuFloodMag)
-
-nonevent <- nonevent_func(Spfl = flowdata$SpFloodMag,
-                          BD = flowdata$BaseDur,
-                          Sufl = flowdata$SuFloodMag) 
-
-====
-
 ## * ITERATION PARAMETERS ------------------------------------------------------
 ## Setting up arrays/vectors to fill with data from loops
 
 ## Mid loop details ------------------------------------------------------------
 ## 'iterations' - number of replicate flow sequences to run for averaging
 
-==== fix this - need years to be auto generated
-years <- as.character(seq(1964, 2017, by = 1))
+years <- flowdata$year
 stages <- as.character(c("S1", "S2", "S3"))
 
 ## Total. N of stages 2 and 3 each year ----------------------------------------
@@ -286,10 +241,10 @@ for(iter in 1:iterations) {
 
         ## CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 Y 
         ## y is directly taken from flow vector. 
-        ## y = i # follow flow record sequence
+        y = i # follow flow record sequence
 
         ## Sampling randomly from the flow record
-        y = sample(nrow(flowdata), 1)
+        #y = sample(nrow(flowdata), 1)
 
 
         ## Transition probabilities  -------------------------------------------
@@ -311,27 +266,27 @@ for(iter in 1:iterations) {
                     get(paste0('den', nm, '2'))
                    )  *
                    (1 -
-                    (SU_highflood[y] *
+                    (flowdata$SU_highflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_J_SUHF')))
                    ) *
                    (1 -
-                    (SP_highflood[y] *
+                    (flowdata$SP_highflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_J_SPHF')))
                    ) *
                    (1 -
-                    (medflood[y] *
+                    (flowdata$medflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_J_MF')))
                    ) *
                    (1 -
-                    (nonevent[y] *
+                    (flowdata$nonevent[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_J_NE')))
                    ) *
                    (1 -
-                    (drought[y] *
+                    (flowdata$drought[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_J_DR')))
                    )
@@ -348,27 +303,27 @@ for(iter in 1:iterations) {
                     get(paste0('den', nm, '3'))
                    ) *
                    (1 -
-                    (SU_highflood[y] *
+                    (flowdata$SU_highflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_A_SUHF')))
                    ) *
                    (1 -
-                    (SP_highflood[y] *
+                    (flowdata$SP_highflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_A_SPHF')))
                    ) *
                    (1 -
-                    (medflood[y] *
+                    (flowdata$medflood[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_A_MF')))
                    ) *
                    (1 -
-                    (nonevent[y] *
+                    (flowdata$nonevent[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_A_NE')))
                    ) *
                    (1 -
-                    (drought[y] *
+                    (flowdata$drought[y] *
                      get(paste0('STMort', nm)) *
                      get(paste0(nm, '_A_DR')))
                    )
@@ -383,27 +338,27 @@ for(iter in 1:iterations) {
              get(paste0('a', nm, '3'))
             ) *
             (1 -
-             (SU_highflood[y] *
+             (flowdata$SU_highflood[y] *
               get(paste0('STMort', nm)) *
               get(paste0(nm, '_A_SUHF')))
             ) *
             (1 -
-             (SP_highflood[y] *
+             (flowdata$SP_highflood[y] *
               get(paste0('STMort', nm)) *
               get(paste0(nm, '_A_SPHF')))
             ) *
             (1 -
-             (medflood[y] *
+             (flowdata$medflood[y] *
               get(paste0('STMort', nm)) *
               get(paste0(nm, '_A_MF')))
             ) *
             (1 -
-             (nonevent[y] *
+             (flowdata$nonevent[y] *
               get(paste0('STMort', nm)) *
               get(paste0(nm, '_A_NE')))
             ) *
             (1 -
-             (drought[y] *
+             (flowdata$drought[y] *
               get(paste0('STMort', nm)) *
               get(paste0(nm, '_A_DR')))
             )
@@ -595,11 +550,11 @@ for(iter in 1:iterations) {
         ## Flow results --------------------------------------------------------
         ## Records flood settings of each particular projected year
         ## (1 = yes, 0 = no)
-        flowresults$SPhighflood[i] <- SP_highflood[y]
-        flowresults$SUhighflood[i] <- SU_highflood[y]
-        flowresults$medflood[i] <- medflood[y]
-        flowresults$nonevent[i] <- nonevent[y]
-        flowresults$drought[i] <- drought[y]
+        flowresults$SPhighflood[i] <- flowdata$SP_highflood[y]
+        flowresults$SUhighflood[i] <- flowdata$SU_highflood[y]
+        flowresults$medflood[i] <- flowdata$medflood[y]
+        flowresults$nonevent[i] <- flowdata$nonevent[y]
+        flowresults$drought[i] <- flowdata$drought[y]
         
         ## MATRIX MULTIPLICATION -----------------------------------------------
         ## can include rescue function for each with 0.5 chance of reach being
@@ -701,11 +656,11 @@ ggplot(flowresults.l, aes(rep, value)) +
 
 ## Checking to see if flows used in actual model runs match those input.
 ## This current run uses natural flow only. 
-flowtest <- data.frame(cbind(SP_highflood,
-                             SU_highflood,
-                             medflood,
-                             drought,
-                             nonevent))
+flowtest <- data.frame(cbind(flowdata$SP_highflood,
+                             flowdata$SU_highflood,
+                             flowdata$medflood,
+                             flowdata$drought,
+                             flowdata$nonevent))
 flowtest
 
 apply(flowtest, 1, sum)
