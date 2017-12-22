@@ -115,11 +115,11 @@ raw.flow %>%
     gather(metric,
            val,
            SpFloodMag:SuFloodMag,
-           -Year,
+           -year,
            -X,
            -SpFloodDate,
            -SuFloodDate) %>%
-    ggplot(aes(Year, val)) +
+    ggplot(aes(year, val)) +
     facet_wrap(~metric) +
     geom_line() +
     geom_hline(yintercept = c(700, 200, 220), colour = 'red')
@@ -162,7 +162,7 @@ nonevent <- nonevent_func(Spfl = raw.flow$SpFloodMag,
 
 
 ## year type (yt) flow
-natural.flow <- as.data.frame(cbind(year = raw.flow$Year,
+natural.flow <- as.data.frame(cbind(year = raw.flow$year,
                                     SP_highflood,
                                     SU_highflood,
                                     medflood,
@@ -182,6 +182,18 @@ natural.flow %>% mutate(sum = rowSums(.[,3:7]))
 ## medflood is never found with summer highflood, so I won't allow that combo.
 ## We thus have nonevent, drought, medflood, and any combo of the 2 highfloods.
 ## i.e. each individually, and combined
+
+## Renaming this as .l for long. Thru to 2017
+natural.flow.l <- natural.flow
+
+## Shortening nat flow to stop at 2008. 
+natural.flow <- natural.flow %>%
+    filter(year < 2009)
+
+## Save natural flow through to 2017
+write.csv(natural.flow.l, 'data/naturalflow_long.csv', row.names = FALSE)
+## Save natural flow through to 2008
+write.csv(natural.flow, 'data/naturalflow.csv', row.names = FALSE)
 
 ## Making flow scenarios -------------------------------------------------------
 ## Sequentially converting each year-type to 0 or 1
@@ -402,9 +414,6 @@ map(all.scenarios.list, class)
 names(all.scenarios.list)
 
 all.scenarios.list$natural.flow <- natural.flow
-
-## Save natural flow through to 2017
-write.csv(natural.flow, 'data/naturalflow.csv', row.names = FALSE)
 
 ## Save the objects as .rds files - then use loadRDS in other file. 
 saveRDS(all.scenarios.list, 'data/all_scenarios_list.rds')
