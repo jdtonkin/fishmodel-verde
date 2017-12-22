@@ -2,12 +2,26 @@
 ## Jane Rogosch, Jono Tonkin, et al.
 
 ## Required libraries
-library(ggplot2)
-library(plyr)
-library(tidyverse)
-library(popbio)
 
+## Better to install individually
+install.packages("plyr", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("tidyverse", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("popbio", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("iterators", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("foreach", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("doMC", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("doParallel", lib="Rpackages", repos = "http://cran.case.edu")
+install.packages("doSNOW", lib="Rpackages", repos = "http://cran.case.edu")
 
+## Required libraries
+library(plyr, lib.loc="Rpackages")
+library(tidyverse, lib.loc="Rpackages")
+library(popbio, lib.loc="Rpackages")
+library(iterators, lib.loc="Rpackages")
+library(foreach, lib.loc="Rpackages")
+library(doMC, lib.loc="Rpackages")
+library(doParallel, lib.loc="Rpackages")
+library(doSNOW, lib.loc="Rpackages")
 
 
 
@@ -108,7 +122,15 @@ sppmod.flowmeans.list <- list()
 ### ----------------------------------------------------------------------------
 ## outer spp selection loop goes here
 ### ----------------------------------------------------------------------------
-for(sppmod in names(allcombos)){
+
+## Setting up cluster
+## Using 45 cores
+registerDoMC(cores = 45)
+
+## using foreach - need to call %dopar%
+foreach(sppmod = names(allcombos)) %dopar% { 
+
+    ## for(sppmod in names(allcombos)){
 
     ## set this to 'sppnames' if you want to run on all seven 
     ## make something here that has all 7 spp but a 0 or 1 next to it based on
