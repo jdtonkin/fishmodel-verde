@@ -732,8 +732,8 @@ rel.abund.trends <- ggplot(mean_end, aes(year,
                                          mean.rel.abund,
                                          colour = species,
                                          fill = species)) +
-    geom_ribbon(aes(ymin = mean.rel.abund - 2 * se.rel.abund,
-                    ymax = mean.rel.abund + 2 * se.rel.abund),
+    geom_ribbon(aes(ymin = mean.rel.abund - 1.96 * se.rel.abund,
+                    ymax = mean.rel.abund + 1.96 * se.rel.abund),
                 colour = 'transparent',
                 alpha = .5,
                 show.legend = FALSE) +
@@ -746,8 +746,8 @@ rel.abund.trends <- ggplot(mean_end, aes(year,
 ## adding observed data
 rel.abund.trends +
     geom_pointrange(aes(y = obs.mean.rel.abund,
-                        ymin = obs.mean.rel.abund - 2 * obs.se.rel.abund,
-                        ymax = obs.mean.rel.abund + 2 * obs.se.rel.abund),
+                        ymin = obs.mean.rel.abund - 1.96 * obs.se.rel.abund,
+                        ymax = obs.mean.rel.abund + 1.96 * obs.se.rel.abund),
                     size = .1,
                     show.legend = FALSE)
 
