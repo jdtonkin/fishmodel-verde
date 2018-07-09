@@ -1,6 +1,11 @@
+## -----------------------------------------------------------------------------
 ## Verde Fish Model
 ## Jane Rogosch, Jono Tonkin, et al.
-## 01-Mar-17
+## July 2018
+## Community-wide stochastic matrix population model that links population
+## dynamics with river flow regimes.
+## This is the bare model used in the Rogosch et al. ms. 
+## -----------------------------------------------------------------------------
 
 ## Required libraries
 library(ggplot2)
@@ -148,7 +153,6 @@ names(flowresults) <- c('SPhighflood',
                         'medflood',
                         'drought',
                         'nonevent')
-flowresults
 
 ## Fecundities -----------------------------------------------------------------
 ## Creating a list of 7 vectors to fill in. One for each spp. 
@@ -165,6 +169,8 @@ names(fec.list) <- sppnames
 ## * Mid loop ##################################################################
 ### ----------------------------------------------------------------------------
 ## Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
+## No 'outer' loop under normal runs.
+
 for(iter in 1:iterations) {
 
     ## USE THIS to examine different flow year types +++++++++++++++++++++++++++ 
@@ -242,7 +248,6 @@ for(iter in 1:iterations) {
 
         ## Sampling randomly from the flow record
         #y = sample(nrow(flowdata), 1)
-
 
         ## Transition probabilities  -------------------------------------------
         ## G is prob. of transition to next stage
@@ -590,7 +595,7 @@ for(iter in 1:iterations) {
 ### End of mid loop ############################################################
 ### ----------------------------------------------------------------------------
 
-## Saving image here as been having trouble in next steps
+## Saving image here - pre compiling results
 save.image()
 
 ## * OUTPUTS -------------------------------------------------------------------

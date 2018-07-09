@@ -1,6 +1,8 @@
 ## This is code to make a list of all possible future flow regimes.
-## This will then get read into the main model as a list. 
-#rm(list = ls()) # clearing the workspace 
+## This will then get read into the main model (fish-model-all-spp.R) as a list. 
+
+## rm(list = ls()) # clearing the workspace 
+
 library(plyr)
 library(tidyverse)
 

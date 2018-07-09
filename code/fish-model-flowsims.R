@@ -1,5 +1,7 @@
 ## Verde Fish Model
-## Jane Rogosch, Jono Tonkin, et al.
+## Code used for simulations of spp combos.
+## This is to be run in combo with shell script on HPC.
+## Not part of Rogosch ms. 
 
 ## Required libraries
 
@@ -22,8 +24,6 @@ library(foreach, lib.loc="Rpackages")
 library(doMC, lib.loc="Rpackages")
 library(doParallel, lib.loc="Rpackages")
 library(doSNOW, lib.loc="Rpackages")
-
-
 
 ## * SETUP ---------------------------------------------------------------------
 
@@ -248,9 +248,9 @@ foreach(sppmod = names(allcombos)) %dopar% {
         ## Assigning names to each vector from sppnames vector
         names(fec.list) <- sppnames
 
-### ----------------------------------------------------------------------------
+        ## -----------------------------------------------------------------------------
         ## * Mid loop ##################################################################
-### ----------------------------------------------------------------------------
+        ## -----------------------------------------------------------------------------
         ## Middle loop uses iterator "iter" to get "iterations" for suming S2 and S3
         for(iter in 1:iterations) {
 
@@ -318,9 +318,9 @@ foreach(sppmod = names(allcombos)) %dopar% {
                           biomAMNA2 * spp.val['AMNA',]$val,
                           rnbinom(1, 0.36, mu = 1306) * spp.val['AMNA',]$val)
 
-### ----------------------------------------------------------------------------
+            ## -----------------------------------------------------------------------------
             ## * Inner loop ################################################################
-### ----------------------------------------------------------------------------
+            ## -----------------------------------------------------------------------------
             for(i in 1:count) {
 
                 ## CHANGE WHAT 'y' IS TO SIMULATE DIFFERENT FLOW REGIMES ACROSS THE 54 Y 
@@ -678,7 +678,7 @@ foreach(sppmod = names(allcombos)) %dopar% {
 ### ----------------------------------------------------------------------------
 
         ## * OUTPUTS -------------------------------------------------------------------
-################################################################################
+        ## #############################################################################
 
         ## turning replist into a df
         repdf <- ldply(replist, function(x) {
