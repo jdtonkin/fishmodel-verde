@@ -8,7 +8,7 @@ library(tidyverse)
 
 ## Loading functions from functions.R file--------------------------------------
 source('code/functions.R')
-
+ 
 ## Make flowdata file with spring and summer floods and minimum baseflow dur
 ## Read data in
 gagedata <- read.csv(file ="data/Paulden_USGS_gage1963-2017.csv", header = T)
