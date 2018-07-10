@@ -1,5 +1,6 @@
 ## This is code to make a list of all possible future flow regimes.
 ## This will then get read into the main model (fish-model-all-spp.R) as a list. 
+## Make flowdata file with spring and summer floods and minimum baseflow dur
 
 ## rm(list = ls()) # clearing the workspace 
 
@@ -11,17 +12,28 @@ library(waterData) # for getting USGS flow data
 source('code/functions.R')
 
 ## Import USGS data - Paulden gage, Verde River. 
-test <- importDVs('09503700',
+gagedata <- importDVs('09503700',
                   code = "00060",
                   sdate = "1963-10-01",
                   edate = "2017-05-22")
 
-head(test)
-head(test2)
 ## Formatting for use below
 ## Some parts are a little awkward but I'm retrofitting from a previous version
-## that was created outside R and read in via csv. 
-test2 <- test %>%
+## that was created outside R and read in via csv.
+## Had to create a function to round .5 values up, rather than down to align
+## w/ previous version. 'round2' below -- used for cfs vals
+
+round2 = function(x, n) {
+  posneg = sign(x)
+  z = abs(x)*10^n
+  z = z + 0.5
+  z = trunc(z)
+  z = z/10^n
+  z*posneg
+}
+
+## adding day of year, water day (start oct. 1), rm 1964
+gagedata <- gagedata %>%
     separate(dates, c('year', 'month', 'day'), remove = F) %>%
     mutate(
         day_of_year = as.numeric(
@@ -30,44 +42,26 @@ test2 <- test %>%
             )
         )
     ) %>%
-    unite(month_day, month, day, sep = '_') %>%
+    unite(month_day, month, day, sep = '_', remove = F) %>%
     group_by(idx = cumsum(month_day == '10_01')) %>% 
     mutate(water_day = row_number()) %>% 
     ungroup %>% 
     select(-idx) %>%
-    filter(year != 1963)
+    filter(year != 1963) %>%
+    mutate(cfs = round2(val, 0)) %>%
+    mutate(
+        year = as.numeric(as.character(year)),
+        month = as.numeric(as.character(month)),
+        day = as.numeric(as.character(day))
+    )
 
-head(test2)
-test2 %>% print(n = 375)
-tail(test2)
-str(test2)
-
-
-sum(test2$water_day- gagedata$water_day) 
-
-sum(test$cfs-gagedata$cfs)
-
-str(test)
-head(test)
-tail(test)
-
-str(gagedata)
-head(gagedata)
-tail(gagedata)
-
-test %>% filter(day_of_year == 366)
-
-gagedata %>% filter(day_of_year == 366)
-gagedata %>% filter(year == 1968 | year == 1969 | year == 1970)
-
-
-## Make flowdata file with spring and summer floods and minimum baseflow dur
+## old read-in
 ## Read data in
-gagedata <- read.csv(file ="data/Paulden_USGS_gage1963-2017.csv", header = T)
+## gagedata <- read.csv(file ="data/Paulden_USGS_gage1963-2017.csv", header = T)
 
 ## Remove 1963
-gagedata <- gagedata %>%
-    filter(year != 1963)
+## gagedata <- gagedata %>%
+##     filter(year != 1963)
 
 ## max flow of year ------------------------------------------------------------
 maxcfs <- gagedata %>%
@@ -112,7 +106,7 @@ SUgagedata <- gagedata %>%
 ## length of each year with a vector of all years then fill the NAs with 0.
 SUduration <- SUgagedata %>%
     group_by(year) %>%
-    do({tmp <- rle(.$cfs < 22)
+    do({tmp <- rle(.$cfs < 22) 
         data.frame(lengths_T = tmp$lengths[tmp$values == TRUE])
     } 
     ) %>%
