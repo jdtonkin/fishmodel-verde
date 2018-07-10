@@ -4,7 +4,7 @@ Code and data associated with Rogosch et al. manuscript examining fish communiti
 
 * Code
 - ~fish-model-all-spp.R~: The core model used to generate results in the manuscript: community-wide stage-structured stochastic matrix population model (7 spp.).  
-- ~make-multiflow.R~: This is code to make a list of all possible future flow regimes. This will then get read into the main model (fish-model-all-spp.R) as a list.  
+- ~make-multiflow.R~: This is code to make a list of all possible future flow regimes. Pulls hydrograph data from USGS. This will then get read into the main model (~fish-model-all-spp.R~) as a list.  
 - ~functions.R~: Some functions used in running the various scripts.   
 - ~fish-model-flowsims.R~: Code used for simulations of spp combinations. This is to be run in combination with shell script (not included in repo) on HPC. This is not part of the Rogosch et al. manuscript.  
 
@@ -12,7 +12,6 @@ Code and data associated with Rogosch et al. manuscript examining fish communiti
 - ~vital-rates.csv~: Vital rates needed to run the model.  
 - ~modifiers-all-spp.csv~: Modifiers that act on the vital rates under different hydrograph settings.  
 - ~Rel_Abu_Verde_94-08.csv~: Empirical fish relative abundance data from the Verde River, used to test model.  
-- ~Paulden_USGS_gage1963-2017.csv~: Raw hydrograph from the USGS Paulden gage.  
 
 The remaining data is generated from the various scripts. But generated flow data required to run ~fish-model-all-spp.R~ is included in the repo.  
 
