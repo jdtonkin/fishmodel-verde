@@ -15,4 +15,4 @@ Code and data associated with Rogosch et al. manuscript examining fish communiti
 
 The remaining data is generated from the various scripts. But generated flow data required to run ~fish-model-all-spp.R~ is included in the repo.  
 
-[[https://zenodo.org/badge/DOI/10.5281/zenodo.1308209.svg][https://zenodo.org/badge/DOI/10.5281/zenodo.1308209.svg]]
+[[https://zenodo.org/badge/DOI/10.5281/zenodo.1308208.svg][https://zenodo.org/badge/DOI/10.5281/zenodo.1308208.svg]]
