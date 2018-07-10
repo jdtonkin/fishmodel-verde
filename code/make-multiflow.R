@@ -5,10 +5,62 @@
 
 library(plyr)
 library(tidyverse)
+library(waterData) # for getting USGS flow data
 
 ## Loading functions from functions.R file--------------------------------------
 source('code/functions.R')
- 
+
+## Import USGS data - Paulden gage, Verde River. 
+test <- importDVs('09503700',
+                  code = "00060",
+                  sdate = "1963-10-01",
+                  edate = "2017-05-22")
+
+head(test)
+head(test2)
+## Formatting for use below
+## Some parts are a little awkward but I'm retrofitting from a previous version
+## that was created outside R and read in via csv. 
+test2 <- test %>%
+    separate(dates, c('year', 'month', 'day'), remove = F) %>%
+    mutate(
+        day_of_year = as.numeric(
+            as.character(
+                strftime(dates, format = "%j")
+            )
+        )
+    ) %>%
+    unite(month_day, month, day, sep = '_') %>%
+    group_by(idx = cumsum(month_day == '10_01')) %>% 
+    mutate(water_day = row_number()) %>% 
+    ungroup %>% 
+    select(-idx) %>%
+    filter(year != 1963)
+
+head(test2)
+test2 %>% print(n = 375)
+tail(test2)
+str(test2)
+
+
+sum(test2$water_day- gagedata$water_day) 
+
+sum(test$cfs-gagedata$cfs)
+
+str(test)
+head(test)
+tail(test)
+
+str(gagedata)
+head(gagedata)
+tail(gagedata)
+
+test %>% filter(day_of_year == 366)
+
+gagedata %>% filter(day_of_year == 366)
+gagedata %>% filter(year == 1968 | year == 1969 | year == 1970)
+
+
 ## Make flowdata file with spring and summer floods and minimum baseflow dur
 ## Read data in
 gagedata <- read.csv(file ="data/Paulden_USGS_gage1963-2017.csv", header = T)
